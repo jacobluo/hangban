@@ -22,5 +22,15 @@ describe('resolveMapStyle', () => {
         },
       },
     });
+
+    expect(typeof style).toBe('object');
+    if (typeof style === 'object') {
+      expect(style.layers[0]).toMatchObject({
+        paint: { 'background-color': '#e9f0f6' },
+      });
+      expect(style.layers[1]).toMatchObject({
+        paint: { 'raster-saturation': -0.9, 'raster-opacity': 0.3 },
+      });
+    }
   });
 });

@@ -387,7 +387,7 @@ git commit -m "style: establish aero chart visual tokens"
 - Consumes: Task 4 CSS 语义变量和现有 `greatCircleGeometry()`。
 - Produces: `resolveMapStyle()` 的浅色底图配置，以及普通、选中、延迟、过期航班和航线图层。
 
-- [ ] **Step 1: 写地图风格失败测试**
+- [x] **Step 1: 写地图风格失败测试**
 
 在 `map-style.test.ts` 断言默认风格包含 `#e9f0f6` 背景、低饱和栅格和低于 0.36 的栅格透明度：
 
@@ -402,13 +402,13 @@ if (typeof style === 'object') {
 }
 ```
 
-- [ ] **Step 2: 运行测试并确认失败**
+- [x] **Step 2: 运行测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/lib/map-style.test.ts`
 
 Expected: FAIL，当前背景为 `#eaf2f8` 且栅格参数不同。
 
-- [ ] **Step 3: 更新默认地图风格**
+- [x] **Step 3: 更新默认地图风格**
 
 将默认背景更新为 Ocean，栅格使用：
 
@@ -424,11 +424,11 @@ paint: {
 
 外部 `NEXT_PUBLIC_MAP_STYLE_URL` 行为保持不变。
 
-- [ ] **Step 4: 更新航班和航线图层**
+- [x] **Step 4: 更新航班和航线图层**
 
 在 `flight-map.tsx` 中为 GeoJSON properties 增加 `selected` 和 `freshness`；普通航班透明度为 0.72，选中状态通过独立 halo circle layer、白色描边 plane image 和 Selected 色表达；选中时其他航班透明度为 0.4。保持已飞实线与未飞虚线图层分离。
 
-- [ ] **Step 5: 验证地图聚焦行为**
+- [x] **Step 5: 验证地图聚焦行为**
 
 Run:
 
