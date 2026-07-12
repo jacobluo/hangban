@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -30,7 +30,7 @@ describe('AppShell', () => {
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
     expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /实时位置/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '实时位置，部分覆盖' })).toBeInTheDocument();
   });
 
   it('opens airport exploration and selects PEK', async () => {
@@ -53,6 +53,25 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
     expect(screen.getByText('10,668 m')).toBeVisible();
+  });
+
+  it('groups global search results by object type and names the map tools precisely', async () => {
+    const user = userEvent.setup();
+    const groupedData = {
+      ...demoData,
+      flights: demoData.flights.map((flight, index) =>
+        index === 0 ? { ...flight, airline: '北京航空' } : flight,
+      ),
+    };
+    render(<AppShell initialData={groupedData} mapEnabled={false} />);
+
+    await user.type(screen.getByRole('searchbox'), '北京');
+
+    const searchResults = within(screen.getByLabelText('搜索结果'));
+    expect(searchResults.getByText('航班')).toBeInTheDocument();
+    expect(searchResults.getByText('机场')).toBeInTheDocument();
+    expect(searchResults.getByText('城市')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '打开图层与筛选' })).toHaveAccessibleName();
   });
 
   it('keeps the current map zoom when selecting a flight', async () => {
@@ -83,7 +102,7 @@ describe('AppShell', () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
-    await user.click(screen.getByRole('button', { name: '地图图层' }));
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
     expect(screen.getByRole('dialog', { name: '筛选与图层' })).toBeVisible();
 
     fireEvent.change(screen.getByRole('slider', { name: '最大高度' }), {
@@ -95,7 +114,7 @@ describe('AppShell', () => {
     expect(screen.queryByRole('dialog', { name: '筛选与图层' })).not.toBeInTheDocument();
     expect(screen.getByText('已显示 2 / 8 架航班')).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: '地图图层' }));
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
     await user.click(screen.getByRole('button', { name: '重置筛选' }));
     expect(screen.getByRole('slider', { name: '最大高度' })).toHaveValue('13000');
     expect(screen.getByRole('button', { name: /应用筛选，显示 8 架航班/ })).toBeVisible();
@@ -105,7 +124,7 @@ describe('AppShell', () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
-    await user.click(screen.getByRole('button', { name: /实时位置/ }));
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
 
     expect(screen.getByRole('dialog', { name: '数据覆盖与服务状态' })).toBeVisible();
     expect(screen.getByText('ADSB.lol')).toBeVisible();

@@ -13,14 +13,14 @@ export function MapControls({ filtersActive, onLayersOpen, onLocate, onZoomIn, o
     <div className="map-tools" aria-label="地图控制">
       <button
         type="button"
-        aria-label="地图图层"
+        aria-label="打开图层与筛选"
         aria-pressed={filtersActive}
         className={filtersActive ? 'control-active' : ''}
         onClick={onLayersOpen}
       >
         <Layers3 size={20} />
       </button>
-      <button type="button" aria-label="定位" onClick={onLocate}>
+      <button type="button" aria-label="定位到当前位置" onClick={onLocate}>
         <Crosshair size={20} />
       </button>
       <button type="button" aria-label="放大" onClick={onZoomIn}>

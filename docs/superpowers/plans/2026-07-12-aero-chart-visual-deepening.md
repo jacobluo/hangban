@@ -463,7 +463,7 @@ git commit -m "style: deepen map object hierarchy"
 - Consumes: `SourceStatus[]`、`RealtimeConnectionState` 和 Task 4 语义变量。
 - Produces: 64 px 顶栏、实时状态入口、分组搜索结果和统一地图控制。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 在 `app-shell.test.tsx` 增加：
 
@@ -476,21 +476,21 @@ expect(screen.getByRole('button', { name: '打开图层与筛选' })).toHaveAcce
 
 测试先输入可同时返回不同对象类型的 fixture 关键字。
 
-- [ ] **Step 2: 运行测试并确认失败**
+- [x] **Step 2: 运行测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，结果未按对象类型呈现分组标题，或控制按钮缺少准确名称。
 
-- [ ] **Step 3: 实现搜索分组和状态入口**
+- [x] **Step 3: 实现搜索分组和状态入口**
 
 在 `search-box.tsx` 根据结果类型生成 `航班 / 机场 / 城市` 分组，保持现有选择回调签名不变。`data-status.tsx` 显示总体状态、最后更新时间和覆盖提示；手机端只显示状态点但保留完整 `aria-label`。
 
-- [ ] **Step 4: 统一地图控制**
+- [x] **Step 4: 统一地图控制**
 
 为定位、图层、放大和缩小按钮提供精确可访问名称；CSS 设置桌面 40 × 40 px、手机 44 × 44 px；手机媒体查询隐藏缩放加减按钮。
 
-- [ ] **Step 5: 运行测试**
+- [x] **Step 5: 运行测试**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 

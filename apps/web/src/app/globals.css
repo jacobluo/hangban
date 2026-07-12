@@ -276,8 +276,8 @@ select:focus-visible {
 .map-tools button {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border: 0;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -1552,6 +1552,9 @@ select:focus-visible {
   .map-tools button {
     width: 44px;
     height: 44px;
+  }
+  .map-tools button:nth-child(n + 3) {
+    display: none;
   }
   .filter-summary,
   .map-message {
