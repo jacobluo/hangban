@@ -35,7 +35,8 @@ test('map controls, filters, source status and complete details change real UI s
   await page.getByRole('button', { name: /CA981.*中国国际航空/ }).click();
   await page.getByRole('button', { name: '查看完整详情' }).click();
   await expect(page.getByRole('heading', { name: '实时飞行数据' })).toBeVisible();
-  await expect(page.getByText('演示数据趋势', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '补充资料' })).toBeVisible();
+  await expect(page.getByText('演示数据趋势', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回地图' }).click();
   await expect(page.getByRole('heading', { name: 'CA981' })).toBeVisible();
 

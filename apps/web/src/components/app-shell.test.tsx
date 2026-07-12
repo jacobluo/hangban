@@ -144,14 +144,16 @@ describe('AppShell', () => {
     expect(screen.getByRole('heading', { name: '实时飞行数据' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '航班事件' })).toBeVisible();
     expect(screen.getByText('B-2482')).toBeVisible();
-    expect(screen.getByText('演示数据趋势')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '补充资料' })).toBeVisible();
+    expect(screen.queryByText('演示数据趋势')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '返回地图' }));
     expect(screen.getByLabelText('实时航班地图')).toBeVisible();
     expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
   });
 
-  it('labels an ADSBdb-derived route as inferred', async () => {
+  it('labels an ADSBdb-derived route and separates provenance from inference', async () => {
+    const user = userEvent.setup();
     const inferredData = {
       ...demoData,
       flights: [
@@ -171,7 +173,24 @@ describe('AppShell', () => {
       ],
     };
     render(<AppShell initialData={inferredData} mapEnabled={false} />);
-    expect(screen.getByText('公开路线信息推断')).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
+    expect(screen.getByText('数据来源')).toBeVisible();
+    expect(screen.getByText('路线推断')).toBeVisible();
+    expect(screen.getByRole('button', { name: '查看完整详情' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '查看完整详情' }));
+    expect(screen.getByRole('heading', { name: '路线推断' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '补充资料' })).toBeVisible();
+  });
+
+  it('expands the mobile flight summary from its default half-height drawer', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    const panel = screen.getByLabelText('航班详情');
+    expect(panel).toHaveAttribute('data-drawer-state', 'half');
+    await user.click(screen.getByRole('button', { name: '展开航班详情抽屉' }));
+    expect(panel).toHaveAttribute('data-drawer-state', 'full');
   });
 
   it('filters airport exploration and keeps selection in the same detail state', async () => {

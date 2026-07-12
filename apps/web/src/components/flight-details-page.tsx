@@ -19,7 +19,11 @@ function airportFor(code: string | undefined, airports: Airport[]) {
 export function FlightDetailsPage({ flight, airports, onBack }: Props) {
   const origin = airportFor(flight.origin, airports);
   const destination = airportFor(flight.destination, airports);
-  const isDemo = flight.sources.includes('demo');
+  const inferredRoute =
+    flight.inferredFields.includes('origin') || flight.inferredFields.includes('destination');
+  const sources = [
+    ...new Set([...flight.sources, ...flight.fieldSources.map((source) => source.providerId)]),
+  ];
 
   return (
     <section className="full-detail-page" aria-label="完整航班详情">
@@ -67,12 +71,11 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
             <span>{destination?.city ?? '—'}</span>
           </div>
         </section>
-        {flight.inferredFields.includes('origin') ||
-        flight.inferredFields.includes('destination') ? (
-          <div className="information-note inferred-route">
-            <b>根据公开路线信息推断</b>
+        {inferredRoute ? (
+          <section className="information-note inferred-route" aria-label="路线推断说明">
+            <h2>路线推断</h2>
             <span>该起终点不是航空公司或机场发布的官方飞行计划。</span>
-          </div>
+          </section>
         ) : null}
 
         <div className="full-detail-grid">
@@ -96,35 +99,6 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
                 <strong>{metric(flight.verticalRateMpm, 'm/min')}</strong>
               </div>
             </div>
-
-            <div className="trend-heading">
-              <h3>近 90 分钟观测趋势</h3>
-              <span>{isDemo ? '演示数据趋势' : '历史趋势未获得'}</span>
-            </div>
-            {isDemo ? (
-              <div className="flight-trend-chart" role="img" aria-label="高度与地速演示趋势图">
-                <svg viewBox="0 0 800 230" preserveAspectRatio="none" aria-hidden="true">
-                  <g className="chart-grid">
-                    <path d="M30 30H780M30 85H780M30 140H780M30 195H780" />
-                    <path d="M30 25V200M220 25V200M410 25V200M600 25V200M780 25V200" />
-                  </g>
-                  <path
-                    className="altitude-line"
-                    d="M30 175 C100 160 120 115 205 98 S340 45 430 53 S610 58 780 42"
-                  />
-                  <path className="speed-line" d="M30 155 C140 128 230 110 330 97 S520 80 780 77" />
-                  <circle className="altitude-point" cx="780" cy="42" r="5" />
-                  <circle className="speed-point" cx="780" cy="77" r="5" />
-                </svg>
-                <div className="chart-legend">
-                  <span>高度 {metric(flight.altitudeM, 'm')}</span>
-                  <span>地速 {metric(flight.groundSpeedKmh, 'km/h')}</span>
-                </div>
-                <p>演示数据趋势用于界面验证，不代表已保存的真实历史轨迹。</p>
-              </div>
-            ) : (
-              <div className="trend-empty">当前数据源未提供可验证的历史趋势。</div>
-            )}
           </section>
 
           <aside className="flight-event-card">
@@ -139,7 +113,7 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
                 <span>{flight.sources.length} 个来源参与当前记录</span>
               </article>
             </div>
-            <h3>飞机与数据</h3>
+            <h2>补充资料</h2>
             <dl>
               <div>
                 <dt>机型</dt>
@@ -155,14 +129,7 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
               </div>
               <div>
                 <dt>数据来源</dt>
-                <dd>
-                  {[
-                    ...new Set([
-                      ...flight.sources,
-                      ...flight.fieldSources.map((source) => source.providerId),
-                    ]),
-                  ].join(' · ')}
-                </dd>
+                <dd>{sources.join(' · ')}</dd>
               </div>
               <div>
                 <dt>融合置信度</dt>

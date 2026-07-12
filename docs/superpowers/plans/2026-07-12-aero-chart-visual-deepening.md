@@ -519,7 +519,7 @@ git commit -m "style: refine navigation and map tools"
 - Consumes: 现有 `Flight` 与 `Airport` 类型，不扩展服务端契约。
 - Produces: 航班身份、航线关系、飞行指标、可信度区块和手机抽屉层级。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 新增断言：
 
@@ -532,25 +532,25 @@ expect(screen.getByRole('button', { name: '查看完整详情' })).toBeInTheDocu
 
 使用包含 `route.inferred === true` 的 fixture。
 
-- [ ] **Step 2: 运行测试并确认失败**
+- [x] **Step 2: 运行测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，缺少新的标题层级或可信度文案。
 
-- [ ] **Step 3: 重排航班摘要**
+- [x] **Step 3: 重排航班摘要**
 
 `flight-panel.tsx` 按身份、航线、两列指标、可信度和唯一主操作排序；不可用字段显示「未获得数据」或隐藏，不用虚构值。
 
-- [ ] **Step 4: 重排完整详情**
+- [x] **Step 4: 重排完整详情**
 
 `flight-details-page.tsx` 使用相同信息顺序；将 ADSBdb 补全信息放入「补充资料」，将推断路线放入带说明的「路线推断」。不新增计划时刻、延误或趋势数据。
 
-- [ ] **Step 5: 实现响应式抽屉样式**
+- [x] **Step 5: 实现响应式抽屉样式**
 
 在 CSS 中定义收起、半展开和全展开状态；现有状态管理若只有开关，则保持行为不变并先实现半展开默认态，另将三停靠点交互作为同任务内的显式状态，测试点击拖动把手或展开按钮后的用户可见内容。
 
-- [ ] **Step 6: 运行测试**
+- [x] **Step 6: 运行测试**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 

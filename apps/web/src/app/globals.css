@@ -377,6 +377,22 @@ select:focus-visible {
   background: var(--surface);
   border-left: 1px solid var(--line);
 }
+.drawer-state-toggle {
+  min-width: 36px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  margin: -10px auto 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.drawer-state-toggle:hover {
+  background: var(--surface-muted);
+  color: var(--action);
+}
 .panel-heading {
   height: 26px;
   display: flex;
@@ -913,6 +929,11 @@ select:focus-visible {
   margin: 12px 16px 18px;
 }
 .information-note b {
+  font-size: 11px;
+}
+.information-note h2,
+.information-note h3 {
+  margin: 0;
   font-size: 11px;
 }
 .information-note span {
@@ -1591,6 +1612,12 @@ select:focus-visible {
     border-radius: 16px;
     box-shadow: 0 -12px 36px rgb(16 42 67 / 12%);
   }
+  .detail-panel.drawer-half {
+    max-height: 48dvh;
+  }
+  .detail-panel.drawer-full {
+    max-height: calc(100dvh - 16px);
+  }
   .detail-panel::before,
   .explorer-panel::before {
     content: '';
@@ -1627,7 +1654,7 @@ select:focus-visible {
   .metric-grid > div {
     min-height: 54px;
   }
-  .source-note {
+  .drawer-half .source-note {
     display: none;
   }
   .airport-list {
