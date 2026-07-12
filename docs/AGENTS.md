@@ -18,6 +18,7 @@
 - [`superpowers/plans/2026-07-12-airport-flight-enrichment.md`](superpowers/plans/2026-07-12-airport-flight-enrichment.md)：机场与航班信息补全的实施步骤和验证门禁。
 - [`superpowers/specs/2026-07-12-production-persistence-compose-design.md`](superpowers/specs/2026-07-12-production-persistence-compose-design.md)：PostgreSQL/PostGIS、Redis、持久化读写和完整容器模式设计。
 - [`superpowers/plans/2026-07-12-production-persistence-compose.md`](superpowers/plans/2026-07-12-production-persistence-compose.md)：生产持久化、独立 ingestor、完整容器模式和真实中间件测试实施计划。
+- [`superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md`](superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md)：全部核心页面的浅色航空图表视觉深化规格、响应式规则和 Ardot 执行边界。
 
 ## 状态说明
 
@@ -26,6 +27,7 @@
 | 产品范围     | 已确认首期边界                                                   |
 | 桌面端界面   | 已按 Ardot 设计实现并完成 1440 × 900 视觉核对                    |
 | 手机端界面   | 已按 Ardot 设计实现并完成 390 × 844 视觉核对                     |
+| 视觉深化     | 浅色专业版规格已确认，尚未修改 Ardot 与前端                      |
 | 技术架构     | 生产实施基线                                                     |
 | 包管理器     | pnpm workspace，已提交锁文件                                     |
 | 应用源码     | 已完成 pnpm workspace MVP                                        |
