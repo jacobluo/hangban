@@ -1,0 +1,12 @@
+.git
+.next
+**/.next
+node_modules
+**/node_modules
+data/import
+.ardot-qa
+playwright-report
+test-results
+coverage
+.env
+.env.local

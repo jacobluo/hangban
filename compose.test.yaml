@@ -1,0 +1,32 @@
+name: hangban-test
+
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: hangban_test
+      POSTGRES_USER: hangban_test
+      POSTGRES_PASSWORD: hangban_test
+    ports:
+      - '127.0.0.1:55432:5432'
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hangban_test -d hangban_test']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  redis:
+    image: redis:8.8.0-alpine
+    command: ['redis-server', '--requirepass', 'hangban_test', '--save', '']
+    ports:
+      - '127.0.0.1:56379:6379'
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'hangban_test', 'ping']
+      interval: 2s
+      timeout: 2s
+      retries: 30

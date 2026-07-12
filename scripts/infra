@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+action="${1:-}"
+case "$action" in
+  up)
+    docker compose up -d --wait postgres redis
+    ;;
+  down)
+    docker compose down --remove-orphans
+    ;;
+  status)
+    docker compose ps
+    ;;
+  logs)
+    docker compose logs --tail=200 postgres redis
+    ;;
+  reset)
+    if [[ "${2:-}" != "--confirm-delete-data" ]]; then
+      echo '{"event":"infra.reset.refused","code":"CONFIRM_DELETE_DATA_REQUIRED"}' >&2
+      exit 2
+    fi
+    docker compose down -v --remove-orphans
+    ;;
+  *)
+    echo 'usage: scripts/infra up|down|status|logs|reset [--confirm-delete-data]' >&2
+    exit 2
+    ;;
+esac

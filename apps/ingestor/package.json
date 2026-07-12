@@ -1,0 +1,32 @@
+{
+  "name": "@hangban/ingestor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/run-live.ts",
+    "start": "tsx src/run-live.ts",
+    "start:once": "tsx src/index.ts",
+    "smoke:live": "tsx src/smoke-live.ts",
+    "data:airports:sync": "tsx src/sync-airports.ts",
+    "data:cities:sync": "tsx src/sync-cities.ts",
+    "db:migrate": "tsx src/migrate-db.ts",
+    "data:db:sync": "tsx src/sync-static-db.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hangban/adapters": "workspace:*",
+    "@hangban/config": "workspace:*",
+    "@hangban/contracts": "workspace:*",
+    "@hangban/domain": "workspace:*",
+    "@hangban/ingestion": "workspace:*",
+    "@hangban/persistence": "workspace:*",
+    "@hangban/realtime-store": "workspace:*"
+  },
+  "devDependencies": {
+    "@hangban/testkit": "workspace:*",
+    "tsx": "4.21.0",
+    "vitest": "4.1.10"
+  }
+}

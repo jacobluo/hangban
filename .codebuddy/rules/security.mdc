@@ -1,0 +1,30 @@
+---
+description: Secret handling, model boundary, validation, and logging security rules.
+alwaysApply: true
+enabled: true
+provider:
+---
+
+# 安全规则
+
+> Canonical detailed rule: this file. Codex and Claude reach it through `AGENTS.md`.
+
+## 密钥与敏感信息
+
+- 禁止把航班数据供应商密钥或任何 secret 暴露给浏览器代码。
+- 禁止把 secret 写入测试、fixtures、docs、截图或提交文件。
+- 不要记录完整 secret、authorization header 或原始 provider credential。
+- 不要提交 `.env`、`.env.local` 或本地机器凭据。
+
+## 数据源边界
+
+- 浏览器代码只能调用本项目 API 与 WebSocket。
+- 浏览器代码不得直接调用 ADSB.lol、OpenSky、Airplanes.live 或其他供应商。
+- 服务端供应商集成必须保持在 `packages/adapters` 后面。
+- Provider 失败或凭据缺失时，应显示明确的数据降级状态，不要静默失败。
+
+## 数据与日志
+
+- 外部输入和第三方 API 响应需要在系统边界处校验。
+- 错误信息不要暴露内部栈、路径、SQL、secret 或调试细节。
+- 日志中避免输出敏感字段；必要时先脱敏。

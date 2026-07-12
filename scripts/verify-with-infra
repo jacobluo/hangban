@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! docker info >/dev/null 2>&1; then
+  echo DOCKER_REQUIRED_FOR_VERIFY >&2
+  exit 1
+fi
+
+export COMPOSE_PROJECT_NAME="hangban-test-$$"
+export DATABASE_URL='postgresql://hangban_test:hangban_test@127.0.0.1:55432/hangban_test'
+export REDIS_URL='redis://:hangban_test@127.0.0.1:56379'
+export REDIS_KEY_PREFIX='hangban-test'
+export DATA_MODE='live'
+export LIVE_PROVIDERS='adsb-lol'
+
+cleanup() {
+  docker compose -f compose.test.yaml down -v --remove-orphans >/dev/null 2>&1 || true
+}
+trap cleanup EXIT INT TERM
+
+docker compose -f compose.test.yaml up -d --wait
+pnpm db:migrate
+pnpm exec tsx tests/fixtures/seed-external.ts
+pnpm lint
+pnpm typecheck
+pnpm test:unit
+pnpm test:integration
+pnpm build
+pnpm e2e:external

@@ -1,0 +1,29 @@
+{
+  "name": "@hangban/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack --hostname 127.0.0.1 --port 3000",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 3000",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hangban/contracts": "workspace:*",
+    "@hangban/domain": "workspace:*",
+    "@hangban/testkit": "workspace:*",
+    "lucide-react": "0.577.0",
+    "maplibre-gl": "5.24.0",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "vitest": "4.1.10"
+  }
+}

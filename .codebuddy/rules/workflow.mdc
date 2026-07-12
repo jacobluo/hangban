@@ -1,0 +1,44 @@
+---
+description: Spec-driven development record, TDD workflow, and commit discipline.
+alwaysApply: true
+enabled: true
+provider:
+---
+
+# 开发记录与执行纪律
+
+> Canonical detailed rule: this file. Codex and Claude reach it through `AGENTS.md`.
+
+## 开始前流程
+
+- 开始任何非 trivial 实现前，必须先使用相关 Superpowers skills。
+- 有意义的产品或架构变更至少使用 `superpowers:using-superpowers`、`superpowers:brainstorming`、`superpowers:writing-plans`、`superpowers:test-driven-development`。
+- 新产品能力、权限模型、数据模型、架构边界变更，必须先 brainstorming，再写 spec/plan。
+- 不确定是否属于有意义变更时，按有意义变更处理。
+- 编码前必须先创建或更新 spec 和 plan：
+  - Spec 放在 `docs/superpowers/specs`。
+  - Plan 放在 `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`。
+- Plan 必须可执行：写清文件、命令、预期测试结果和小粒度 checkbox。
+- 完成任务时同步勾选 plan checkbox，不要让已完成任务保持未勾选。
+- 如果实现偏离 plan，先更新 plan 或补充原因说明，再继续。
+- 保留已有 spec 和 plan 作为历史记录，除非用户明确要求合并或删除。
+- 事后补 spec/plan 只能算补救，不算正确执行流程。
+
+## TDD 流程
+
+每个 spec 默认按 TDD 实现：
+
+1. 先读相关 spec 和 plan。
+2. 写或更新一个失败测试，表达目标行为。
+3. 运行聚焦测试，确认因预期原因失败。
+4. 做最小生产实现。
+5. 再跑聚焦测试，确认通过。
+6. 完成前跑更广的验证。
+7. 按 plan 的一个 coherent task 提交。
+
+## 提交纪律
+
+- 每个 coherent task 后提交一次。
+- 优先使用 `feat: ...`、`fix: ...`、`test: ...`、`docs: ...` 等提交信息。
+- 提交前必须尊重 `.githooks/pre-commit`。
+- 不要为了通过检查而删除、跳过或弱化测试。

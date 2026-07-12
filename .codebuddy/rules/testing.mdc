@@ -1,0 +1,74 @@
+---
+description: Verification commands, testing requirements, and unit/component plus E2E coverage bars.
+alwaysApply: true
+enabled: true
+provider:
+---
+
+# 测试与质量规则
+
+> Canonical detailed rule: this file. Codex and Claude reach it through `AGENTS.md`.
+
+## 验证入口
+
+优先使用仓库脚本：
+
+- `scripts/lint`: ESLint。
+- `scripts/typecheck`: TypeScript 类型检查。
+- `scripts/test`: unit/component tests。
+- `scripts/e2e`: Playwright E2E tests。
+- `scripts/verify`: 完整提交验证。
+- `scripts/verify-with-infra`: 使用隔离 PostgreSQL/PostGIS 与 Redis 容器执行生产行为门禁。
+
+`.githooks/pre-commit` 会运行 `scripts/verify`。完整门禁要求 Docker 可用，并覆盖 lint/typecheck、单元/组件测试、真实中间件集成测试和 E2E。
+
+## 测试要求
+
+- 新生产行为必须有测试。
+- Bug 修复必须有回归测试。
+- 文档-only、纯样式且无行为变化、或用户明确批准的 spike 可以例外。
+- 测试应验证用户可见行为或稳定接口，避免绑定无意义的内部实现细节。
+- Mock 网络调用应放在 API 边界；不要 mock 正在被测试的行为。
+
+## 覆盖率要求
+
+当前仓库尚未配置可量化的 coverage 阈值脚本；在引入正式覆盖率工具前，覆盖率按行为和风险面管理。
+
+单元/组件测试覆盖率必须满足：
+
+- 新增或修改的纯函数、契约转换、状态机、边界判断和错误处理分支必须有单元测试。
+- 新增或修改的前端组件行为必须有组件测试，覆盖用户可见状态、禁用态、错误态和关键交互。
+- 修复 bug 时，先补能复现问题的失败测试，再实现修复。
+- 不允许只测试 happy path；至少覆盖一个主要失败路径或边界条件，除非该变更确实没有分支。
+- 不允许为了通过测试而删除断言、扩大 mock、跳过测试或降低测试价值。
+
+E2E 覆盖率必须满足：
+
+- 每个用户可见核心工作流至少有一条 Playwright 覆盖。
+- 每个 spec 中新增或变更的关键交互，都要在 E2E 中覆盖 happy path 和至少一个高风险失败路径。
+- 涉及编辑器选区、文档替换、undo/recovery、API 错误、移动端可用性的变更，必须有对应 E2E 或在 plan/spec 中明确说明豁免原因。
+- E2E 覆盖的是真实用户路径，不用无意义的点击脚本、纯快照数量或只检查页面加载来冒充覆盖率。
+- 当删除或重写已有流程时，必须同步迁移 E2E 覆盖，不能让旧行为测试被移除后没有新行为替代。
+
+如果后续引入 Vitest/Playwright 覆盖率报告：
+
+- `scripts/verify` 应包含覆盖率检查或调用等价的 coverage gate。
+- 新代码覆盖率不得低于仓库设定阈值。
+- 总覆盖率不得因单个 spec 下降，除非用户明确批准并记录原因。
+
+## E2E 覆盖
+
+用户可见工作流需要 Playwright 覆盖。航班产品相关 spec 至少覆盖：
+
+- 主流程 happy path。
+- 模型/API 错误路径。
+- 航班搜索、机场探索和航线探索。
+- 数据源降级状态与 API 错误路径。
+- 移动端 viewport sanity。
+- 触发该 spec 的 bug 或产品变化的回归断言。
+
+## 完成标准
+
+- 完成前运行与变更范围匹配的聚焦测试。
+- 最终交付前运行 `scripts/verify`。
+- 无法运行验证命令时，必须说明阻塞原因和用户可手动执行的命令。

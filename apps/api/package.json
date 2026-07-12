@@ -1,0 +1,31 @@
+{
+  "name": "@hangban/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run --root ../.. apps/api/src",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.2.0",
+    "@fastify/websocket": "11.3.0",
+    "@hangban/config": "workspace:*",
+    "@hangban/contracts": "workspace:*",
+    "@hangban/domain": "workspace:*",
+    "@hangban/adapters": "workspace:*",
+    "@hangban/ingestion": "workspace:*",
+    "@hangban/persistence": "workspace:*",
+    "@hangban/realtime-store": "workspace:*",
+    "@hangban/testkit": "workspace:*",
+    "fastify": "5.10.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "4.21.0",
+    "vitest": "4.1.10"
+  }
+}
