@@ -1002,9 +1002,22 @@ select:focus-visible {
 }
 .endpoint-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 36px 1fr;
+  align-items: center;
   gap: 10px;
   margin: 12px 0;
+}
+.endpoint-swap {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--action);
+  cursor: pointer;
 }
 .endpoint-slot {
   position: relative;
@@ -1128,6 +1141,18 @@ select:focus-visible {
   max-height: 260px;
   overflow: auto;
   padding: 6px;
+}
+.airport-picker-scope {
+  margin: 0;
+  padding: 8px 14px 2px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+.route-observed-at {
+  margin: 10px 0;
+  color: var(--ink-muted);
+  font-size: 9px;
 }
 .airport-option-list > button {
   width: 100%;

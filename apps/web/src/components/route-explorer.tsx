@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { ArrowLeftRight, X } from 'lucide-react';
 import { useState } from 'react';
 
 import type { Airport, Flight } from '@hangban/contracts';
@@ -46,6 +46,10 @@ export function RouteExplorer({
             activeFlights.length) *
             100,
         );
+  const lastObservedAt = activeFlights
+    .map((flight) => flight.observedAt)
+    .sort()
+    .at(-1);
 
   const selectAirport = (kind: 'origin' | 'destination', airport: Airport) => {
     const other = kind === 'origin' ? destination : origin;
@@ -89,6 +93,17 @@ export function RouteExplorer({
               </button>
             )}
           </div>
+          <button
+            className="endpoint-swap"
+            type="button"
+            aria-label="交换起点和终点"
+            onClick={() => {
+              onOriginChange(destination);
+              onDestinationChange(origin);
+            }}
+          >
+            <ArrowLeftRight size={17} />
+          </button>
           <div className="endpoint-slot">
             <button
               className="endpoint"
@@ -173,8 +188,13 @@ export function RouteExplorer({
         </div>
         <div className="information-note">
           <b>实时航线视图</b>
-          <span>依据航班当前位置与机场信息归并，不代表官方完整班次，也不承诺完整覆盖。</span>
+          <span>基于公开航班信息和实时位置归并，不代表官方完整班次，也不承诺完整覆盖。</span>
         </div>
+        <p className="mono route-observed-at">
+          {lastObservedAt === undefined
+            ? '更新时间未获得'
+            : `更新于 ${lastObservedAt.slice(11, 19)} UTC`}
+        </p>
         <div className="list-heading">
           <h3>当前在途航班</h3>
           <span>{activeFlights.length} ACTIVE</span>
@@ -185,14 +205,14 @@ export function RouteExplorer({
           ) : activeFlights.length === 0 ? (
             <p className="empty-copy">当前没有匹配的在途航班</p>
           ) : (
-            activeFlights.map((flight, index) => (
+            activeFlights.map((flight) => (
               <button type="button" key={flight.id} onClick={() => onFlightSelect(flight)}>
                 <strong>{flight.callsign}</strong>
                 <span>
                   {flight.altitudeM?.toLocaleString('zh-CN') ?? '—'} m ·{' '}
                   {flight.groundSpeedKmh ?? '—'} km/h
                 </span>
-                <em>{[38, 61, 24, 73][index] ?? 50}%</em>
+                <em>{Math.round(flight.confidence * 100)}%</em>
               </button>
             ))
           )}

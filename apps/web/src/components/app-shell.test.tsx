@@ -42,6 +42,8 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('heading', { name: 'PEK' })).toBeVisible();
     expect(screen.getByText('周边实时航班')).toBeVisible();
+    expect(screen.getByText(/当前视野/)).toBeVisible();
+    expect(screen.getByText('周边航班不等同于到港或离港班次')).toBeVisible();
   });
 
   it('searches and opens a flight', async () => {
@@ -96,6 +98,18 @@ describe('AppShell', () => {
     expect(screen.getByRole('heading', { name: '航线探索' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '当前在途航班' })).toBeVisible();
     expect(screen.getAllByText('CA981').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: '交换起点和终点' })).toBeVisible();
+    expect(screen.getByText(/基于公开航班信息和实时位置归并/)).toBeVisible();
+  });
+
+  it('does not present an empty airport observation as a measured zero', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={{ ...demoData, flights: [] }} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('tab', { name: '机场' }));
+
+    expect(screen.getAllByText('当前未获得记录').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/^0 架$/)).not.toBeInTheDocument();
   });
 
   it('opens map layers, applies a reliable flight filter and resets it', async () => {

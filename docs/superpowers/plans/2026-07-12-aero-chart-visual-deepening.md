@@ -582,7 +582,7 @@ git commit -m "style: clarify flight information hierarchy"
 - Consumes: 现有机场搜索、视野机场和航线匹配 API。
 - Produces: 当前视野与全球搜索区分、机场连续流程和对称航线选择器。
 
-- [ ] **Step 1: 写机场失败测试**
+- [x] **Step 1: 写机场失败测试**
 
 增加：
 
@@ -592,7 +592,7 @@ expect(screen.getByText('周边航班不等同于到港或离港班次')).toBeIn
 expect(screen.queryByText(/^0 架$/)).not.toBeInTheDocument();
 ```
 
-- [ ] **Step 2: 写航线失败测试**
+- [x] **Step 2: 写航线失败测试**
 
 增加：
 
@@ -601,21 +601,21 @@ expect(screen.getByRole('button', { name: '交换起点和终点' })).toBeInTheD
 expect(screen.getByText(/基于公开航班信息和实时位置归并/)).toBeInTheDocument();
 ```
 
-- [ ] **Step 3: 运行测试并确认失败**
+- [x] **Step 3: 运行测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，缺少明确说明或交换按钮名称。
 
-- [ ] **Step 4: 实现机场层级**
+- [x] **Step 4: 实现机场层级**
 
 将机场代码作为列表主扫描锚点，明确显示当前视野数量和全球搜索状态。未获得周边记录时显示「当前未获得记录」。手机端选择机场后隐藏列表并打开详情抽屉。
 
-- [ ] **Step 5: 实现航线层级**
+- [x] **Step 5: 实现航线层级**
 
 将起终点改为对称选择器，交换操作只交换两个机场；未完整选择时不传递活动航线到地图；匹配结果显示距离、方向、匹配数、更新时间和覆盖说明。
 
-- [ ] **Step 6: 更新 E2E**
+- [x] **Step 6: 更新 E2E**
 
 在桌面与手机项目中断言机场说明、交换按钮和航线覆盖说明可见，保持已有 PEK/JFK 工作流。
 

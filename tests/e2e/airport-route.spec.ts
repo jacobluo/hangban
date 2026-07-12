@@ -7,7 +7,7 @@ test('explores PEK and its nearby live flights', async ({ page }) => {
   await page.getByRole('button', { name: /北京首都国际机场 PEK/ }).click();
   await expect(page.getByRole('heading', { name: 'PEK' })).toBeVisible();
   await expect(page.getByText('周边实时航班')).toBeVisible();
-  await expect(page.getByText(/不代表机场到离港时刻/)).toBeVisible();
+  await expect(page.getByText('周边航班不等同于到港或离港班次')).toBeVisible();
 });
 
 test('explores PEK to JFK active flights', async ({ page }) => {
@@ -15,5 +15,7 @@ test('explores PEK to JFK active flights', async ({ page }) => {
   await page.getByRole('tab', { name: '航线' }).click();
   await expect(page.getByRole('heading', { name: '航线探索' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '当前在途航班' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '交换起点和终点' })).toBeVisible();
+  await expect(page.getByText(/基于公开航班信息和实时位置归并/)).toBeVisible();
   await expect(page.getByText('CA981').first()).toBeVisible();
 });
