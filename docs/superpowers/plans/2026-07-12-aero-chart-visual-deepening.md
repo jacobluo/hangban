@@ -180,43 +180,43 @@ git commit -m "design: establish aero chart foundations"
 - Consumes: Task 1 的变量和共用组件。
 - Produces: 已确认的全球实时、搜索、航班摘要与完整详情深化画板。
 
-- [ ] **Step 1: 创建全球实时桌面画板**
+- [x] **Step 1: 创建全球实时桌面画板**
 
 复制基线桌面画板到 `01 / Global Live`，命名为 `Deep / Desktop / Global Live`，保持 1440 × 900。替换为 Task 1 组件，并应用以下布局：顶栏 64 px；搜索框宽 420 px、高 52 px；右侧详情宽 360 px；地图填充剩余区域。
 
 Expected: 选中航班位于地图内容安全区中心，面板不覆盖搜索框和回看条。
 
-- [ ] **Step 2: 建立地图视觉层级**
+- [x] **Step 2: 建立地图视觉层级**
 
 在 Ardot 示意地图中应用 Ocean、Land、Border 和 Border Subtle；普通航班使用 Action 且透明度 72%；选中航班使用 24–28 px 光晕、白色描边和 Selected 图标；其他航班降低至 40%。已飞航迹使用 Selected 实线，未飞航迹使用 Action 虚线。
 
 Expected: 无需阅读详情即可识别当前航班、已飞部分和未飞部分。
 
-- [ ] **Step 3: 深化桌面搜索状态**
+- [x] **Step 3: 深化桌面搜索状态**
 
 在 `02 / Search` 创建 `Deep / Desktop / Search Results`，包含 Flight、Airport、City 分组和键盘选中态；最多展示 8 条结果；无结果画板保留关键字和「修改搜索」「返回地图」动作。
 
 Expected: 搜索结果与搜索框等宽，不使用黄色文本背景。
 
-- [ ] **Step 4: 深化航班摘要与完整详情**
+- [x] **Step 4: 深化航班摘要与完整详情**
 
 在 `03 / Flight Detail` 创建桌面摘要和完整详情。摘要按航班身份、航线关系、飞行指标、数据说明排序；完整详情增加元数据补全与推断说明。移除无可靠数据支持的计划时刻或装饰图表。
 
 Expected: ADSBdb 补全信息与实时位置字段在标题或说明中明确区分；推断路线出现「推断」。
 
-- [ ] **Step 5: 创建对应手机画板**
+- [x] **Step 5: 创建对应手机画板**
 
 创建 390 × 844 的 `Deep / Mobile / Global Live`、`Search Results`、`Flight Drawer / Collapsed|Half|Full` 和 `Full Flight Detail`。搜索结果与对象详情不得同时占用同一抽屉；地图控制保持在抽屉最高位置上方。
 
 Expected: 所有主要控件至少 44 × 44 px；三个抽屉停靠状态视觉稳定。
 
-- [ ] **Step 6: 截图与设计确认**
+- [x] **Step 6: 截图与设计确认**
 
 批量截图本任务全部桌面与手机画板，检查 1440 × 900 和 390 × 844。
 
 Expected: 无重叠、裁切、文本溢出或不可达操作；获得设计确认后才进入 Task 3。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add docs/superpowers/plans/2026-07-12-aero-chart-visual-deepening.md
