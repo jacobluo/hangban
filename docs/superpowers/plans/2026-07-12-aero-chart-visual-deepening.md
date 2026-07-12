@@ -298,7 +298,7 @@ git commit -m "design: complete responsive visual deepening"
 - Consumes: 已确认的 Ardot Tokens 和组件状态。
 - Produces: CSS 变量 `--canvas`、`--ocean`、`--land`、`--surface`、`--ink`、`--ink-muted`、`--border`、`--border-subtle`、`--action`、`--selected`、`--healthy`、`--warning`、`--critical`，供后续任务使用。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 在 `layout.test.tsx` 增加对页面主区域语义的断言，在 `app-shell.test.tsx` 增加实时状态入口与地图主区域的可访问名称断言：
 
@@ -307,7 +307,7 @@ expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeInThe
 expect(screen.getByRole('button', { name: /实时位置/ })).toBeInTheDocument();
 ```
 
-- [ ] **Step 2: 运行测试并确认失败**
+- [x] **Step 2: 运行测试并确认失败**
 
 Run:
 
@@ -317,7 +317,7 @@ pnpm exec vitest run apps/web/src/app/layout.test.tsx apps/web/src/components/ap
 
 Expected: FAIL，缺少对应 `aria-label` 或实时状态按钮名称。
 
-- [ ] **Step 3: 添加语义变量与基础样式**
+- [x] **Step 3: 添加语义变量与基础样式**
 
 在 `globals.css` 的 `:root` 中定义：
 
@@ -350,11 +350,11 @@ Expected: FAIL，缺少对应 `aria-label` 或实时状态按钮名称。
 
 将全局背景、文本、描边、焦点环和按钮状态改用语义变量，不进行页面级布局重写。
 
-- [ ] **Step 4: 添加语义与可访问名称**
+- [x] **Step 4: 添加语义与可访问名称**
 
 在 `app-shell.tsx` 为地图主区域添加 `role="main" aria-label="全球实时航班地图"`；确保实时状态组件呈现为按钮并包含状态文本。
 
-- [ ] **Step 5: 运行聚焦测试**
+- [x] **Step 5: 运行聚焦测试**
 
 Run:
 

@@ -26,6 +26,13 @@ import { AppShell } from './app-shell';
 import { demoData } from '../lib/demo-data';
 
 describe('AppShell', () => {
+  it('exposes the live map and freshness status as primary application landmarks', () => {
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /实时位置/ })).toBeInTheDocument();
+  });
+
   it('opens airport exploration and selects PEK', async () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
@@ -98,7 +105,7 @@ describe('AppShell', () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
-    await user.click(screen.getByRole('button', { name: '实时数据状态' }));
+    await user.click(screen.getByRole('button', { name: /实时位置/ }));
 
     expect(screen.getByRole('dialog', { name: '数据覆盖与服务状态' })).toBeVisible();
     expect(screen.getByText('ADSB.lol')).toBeVisible();

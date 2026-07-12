@@ -9,11 +9,11 @@ export function DataStatus({ statuses, compact = false, onOpen }: Props) {
     <button
       type="button"
       className={compact ? 'data-status compact' : 'data-status'}
-      aria-label="实时数据状态"
+      aria-label={degraded ? '实时位置，部分覆盖' : '实时位置，数据正常'}
       onClick={onOpen}
     >
       <span className={degraded ? 'status-dot delayed' : 'status-dot'} />
-      <strong>{degraded ? '部分数据延迟' : '实时数据'}</strong>
+      <strong>{degraded ? '部分覆盖' : '实时位置'}</strong>
       <span>
         {healthy}/{statuses.length} 来源正常
       </span>

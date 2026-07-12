@@ -215,6 +215,8 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
 
       <section
         className="map-stage"
+        role="main"
+        aria-label="全球实时航班地图"
         aria-hidden={fullDetailOpen}
         inert={fullDetailOpen ? true : undefined}
       >

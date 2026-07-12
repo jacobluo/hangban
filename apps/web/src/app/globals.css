@@ -1,15 +1,35 @@
 :root {
-  --map-sky: #eaf2f8;
+  --canvas: #f4f7fa;
+  --ocean: #e9f0f6;
+  --land: #f8fafc;
   --surface: #ffffff;
-  --surface-muted: #f1f6fa;
   --ink: #102a43;
-  --ink-muted: #52677a;
-  --line: #c8d4de;
-  --blue: #0f62fe;
-  --orange: #ff6f3d;
-  --success: #198038;
-  --warning: #b26a00;
-  --radius: 6px;
+  --ink-muted: #627d98;
+  --border: #c9d5df;
+  --border-subtle: #dde6ed;
+  --action: #0f62fe;
+  --selected: #ff6f3d;
+  --healthy: #159947;
+  --warning: #b77900;
+  --critical: #c93737;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Compatibility aliases for existing components during the staged redesign. */
+  --map-sky: var(--ocean);
+  --surface-muted: var(--canvas);
+  --line: var(--border);
+  --blue: var(--action);
+  --orange: var(--selected);
+  --success: var(--healthy);
+  --radius: var(--radius-md);
   --panel-width: 360px;
   --topbar-height: 64px;
   color-scheme: light;
@@ -38,7 +58,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
 }
 .sr-only {
