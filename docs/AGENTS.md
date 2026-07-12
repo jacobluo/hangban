@@ -19,6 +19,7 @@
 - [`superpowers/specs/2026-07-12-production-persistence-compose-design.md`](superpowers/specs/2026-07-12-production-persistence-compose-design.md)：PostgreSQL/PostGIS、Redis、持久化读写和完整容器模式设计。
 - [`superpowers/plans/2026-07-12-production-persistence-compose.md`](superpowers/plans/2026-07-12-production-persistence-compose.md)：生产持久化、独立 ingestor、完整容器模式和真实中间件测试实施计划。
 - [`superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md`](superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md)：全部核心页面的浅色航空图表视觉深化规格、响应式规则和 Ardot 执行边界。
+- [`superpowers/plans/2026-07-12-aero-chart-visual-deepening.md`](superpowers/plans/2026-07-12-aero-chart-visual-deepening.md)：Ardot 深化、前端同步、视觉核对和验证门禁的实施步骤。
 
 ## 状态说明
 
