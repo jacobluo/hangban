@@ -5,11 +5,18 @@ test('map controls, filters, source status and complete details change real UI s
 }, testInfo) => {
   await page.goto('/');
 
-  const zoomOutput = page.getByLabel('地图缩放级别');
-  const zoomBefore = Number(await zoomOutput.textContent());
-  await page.getByRole('button', { name: '放大' }).click();
-  await expect.poll(async () => Number(await zoomOutput.textContent())).toBeGreaterThan(zoomBefore);
-  await page.getByRole('button', { name: '缩小' }).click();
+  if (testInfo.project.name === 'desktop') {
+    const zoomOutput = page.getByLabel('地图缩放级别');
+    const zoomBefore = Number(await zoomOutput.textContent());
+    await page.getByRole('button', { name: '放大' }).click();
+    await expect
+      .poll(async () => Number(await zoomOutput.textContent()))
+      .toBeGreaterThan(zoomBefore);
+    await page.getByRole('button', { name: '缩小' }).click();
+  } else {
+    await expect(page.getByRole('button', { name: '放大' })).toBeHidden();
+    await expect(page.getByRole('button', { name: '缩小' })).toBeHidden();
+  }
 
   await page.getByRole('button', { name: '打开图层与筛选' }).click();
   await expect(page.getByRole('dialog', { name: '筛选与图层' })).toBeVisible();

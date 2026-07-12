@@ -364,7 +364,7 @@ pnpm exec vitest run apps/web/src/app/layout.test.tsx apps/web/src/components/ap
 
 Expected: PASS。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/src/app/globals.css apps/web/src/app/layout.test.tsx apps/web/src/components/app-shell.tsx apps/web/src/components/app-shell.test.tsx
@@ -438,7 +438,7 @@ pnpm exec vitest run apps/web/src/lib/map-style.test.ts apps/web/src/lib/map-geo
 
 Expected: PASS；日期变更线测试保持通过。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/src/lib/map-style.ts apps/web/src/lib/map-style.test.ts apps/web/src/components/flight-map.tsx apps/web/src/app/globals.css
@@ -496,7 +496,7 @@ Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: PASS。
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web/src/components/app-shell.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/components/search-box.tsx apps/web/src/components/data-status.tsx apps/web/src/components/map-controls.tsx apps/web/src/app/globals.css
@@ -556,7 +556,7 @@ Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: PASS。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web/src/components/flight-panel.tsx apps/web/src/components/flight-details-page.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/app/globals.css
@@ -619,7 +619,7 @@ Expected: FAIL，缺少明确说明或交换按钮名称。
 
 在桌面与手机项目中断言机场说明、交换按钮和航线覆盖说明可见，保持已有 PEK/JFK 工作流。
 
-- [ ] **Step 7: 运行测试**
+- [x] **Step 7: 运行测试**
 
 Run:
 
@@ -630,7 +630,7 @@ pnpm exec playwright test tests/e2e/airport-route.spec.ts tests/e2e/airport-sear
 
 Expected: PASS。
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add apps/web/src/components/airport-explorer.tsx apps/web/src/components/airport-picker.tsx apps/web/src/components/route-explorer.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/app/globals.css tests/e2e/airport-route.spec.ts tests/e2e/airport-search.spec.ts
@@ -685,7 +685,7 @@ Expected: FAIL，当前筛选需要应用按钮或缺少覆盖说明。
 
 `system-notice.tsx` 为 loading、empty、warning 和 critical 提供文本与图标差异；全部来源不可用时说明地图和机场静态信息仍可使用。
 
-- [ ] **Step 6: 更新 E2E 并运行**
+- [x] **Step 6: 更新 E2E 并运行**
 
 Run:
 
@@ -696,7 +696,7 @@ pnpm exec playwright test tests/e2e/system-states.spec.ts tests/e2e/ui-controls.
 
 Expected: PASS。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web/src/components/layer-filter-panel.tsx apps/web/src/components/data-status-panel.tsx apps/web/src/components/system-notice.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/app/globals.css tests/e2e/system-states.spec.ts tests/e2e/ui-controls.spec.ts
@@ -766,7 +766,7 @@ Expected: 至少一个触控尺寸或键盘焦点断言 FAIL。
 }
 ```
 
-- [ ] **Step 6: 运行响应式 E2E**
+- [x] **Step 6: 运行响应式 E2E**
 
 Run:
 
@@ -776,7 +776,7 @@ pnpm exec playwright test tests/e2e/mobile.spec.ts tests/e2e/live-map.spec.ts te
 
 Expected: 桌面与手机项目全部 PASS。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web/src/app/globals.css apps/web/src/components/app-shell.test.tsx tests/e2e/mobile.spec.ts tests/e2e/live-map.spec.ts tests/e2e/ui-controls.spec.ts
@@ -800,7 +800,7 @@ git commit -m "style: complete responsive accessibility pass"
 - Consumes: 已确认 Ardot `main_deep` 和完成的前端实现。
 - Produces: 视觉差异记录、完整验证结果和可交付提交。
 
-- [ ] **Step 1: 启动完整本地环境**
+- [x] **Step 1: 启动完整本地环境**
 
 Run:
 
@@ -811,23 +811,23 @@ pnpm dev
 
 Expected: Web 为 `http://127.0.0.1:3000`，API `/ready` 返回 200。
 
-- [ ] **Step 2: 桌面端视觉核对**
+- [x] **Step 2: 桌面端视觉核对**
 
 以 1440 × 900 逐项核对全球实时、搜索、航班摘要、完整详情、机场、航线、筛选、数据覆盖和系统状态，并保存截图。
 
 Expected: 与 `main_deep` 的结构、层级、颜色语义和控件尺寸一致；真实地图与真实数据不要求复刻 Ardot 示意几何和数字。
 
-- [ ] **Step 3: 手机端视觉核对**
+- [x] **Step 3: 手机端视觉核对**
 
 以 390 × 844 核对同一组流程，保存截图。
 
 Expected: 无水平滚动、遮挡、裁切或小于 44 × 44 px 的主要触控区域。
 
-- [ ] **Step 4: 更新文档**
+- [x] **Step 4: 更新文档**
 
 在 `docs/product-design.md` 的视觉核对记录中新增本轮日期、视口、Ardot 页面 `main_deep（16:1）`、有意差异和状态覆盖；在 `docs/AGENTS.md` 将视觉深化状态更新为「已实现并完成视觉核对」。
 
-- [ ] **Step 5: 运行完整验证**
+- [x] **Step 5: 运行完整验证**
 
 确保宿主机 4000 端口未被开发容器占用后运行：
 
@@ -838,7 +838,7 @@ pnpm format:check
 
 Expected: lint、typecheck、unit、integration、build 和桌面/手机 E2E 全部通过；格式检查通过。
 
-- [ ] **Step 6: 检查提交范围**
+- [x] **Step 6: 检查提交范围**
 
 Run:
 
@@ -850,7 +850,7 @@ git diff --stat origin/main...HEAD
 
 Expected: `.env`、`.ardot-qa/`、测试报告、数据导入文件和依赖目录未进入提交。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add docs/product-design.md docs/AGENTS.md docs/superpowers/plans/2026-07-12-aero-chart-visual-deepening.md

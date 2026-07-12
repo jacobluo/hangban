@@ -17,7 +17,7 @@ test('keeps the map usable and offers retry when the initial snapshot network fa
   await page.route('**/api/v1/map/snapshot**', async (route) => route.abort('failed'));
   await page.goto('/');
 
-  await expect(page.getByLabel('实时航班地图')).toBeVisible();
+  await expect(page.getByLabel('实时航班地图', { exact: true })).toBeVisible();
   await expect(page.getByText(/正在重新连接|实时连接已中断/)).toBeVisible({ timeout: 5_000 });
   await expect(page.getByRole('button', { name: '重新连接' })).toBeVisible();
   await page.getByRole('button', { name: '重新连接' }).click();
