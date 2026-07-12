@@ -112,7 +112,7 @@ describe('AppShell', () => {
     expect(screen.queryByText(/^0 架$/)).not.toBeInTheDocument();
   });
 
-  it('opens map layers, applies a reliable flight filter and resets it', async () => {
+  it('applies reliable flight filters immediately and resets them', async () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
@@ -122,16 +122,13 @@ describe('AppShell', () => {
     fireEvent.change(screen.getByRole('slider', { name: '最大高度' }), {
       target: { value: '9000' },
     });
-    expect(screen.getByRole('button', { name: /应用筛选，显示 2 架航班/ })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: /应用筛选/ }));
-
-    expect(screen.queryByRole('dialog', { name: '筛选与图层' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /应用筛选/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '重置筛选' })).toBeVisible();
     expect(screen.getByText('已显示 2 / 8 架航班')).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
     await user.click(screen.getByRole('button', { name: '重置筛选' }));
     expect(screen.getByRole('slider', { name: '最大高度' })).toHaveValue('13000');
-    expect(screen.getByRole('button', { name: /应用筛选，显示 8 架航班/ })).toBeVisible();
+    expect(screen.queryByText('已显示 2 / 8 架航班')).not.toBeInTheDocument();
   });
 
   it('opens source health details from the compact data status', async () => {
@@ -145,9 +142,27 @@ describe('AppShell', () => {
     expect(screen.getByText('OpenSky Network')).toBeVisible();
     expect(screen.getByText('Airplanes.live')).toBeVisible();
     expect(screen.getByText('部分区域更新延迟')).toBeVisible();
+    expect(screen.getAllByText(/最后成功时间/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: '关闭数据状态' }));
     expect(screen.queryByRole('dialog', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+  });
+
+  it('keeps static map context available when every realtime source is unavailable', () => {
+    const unavailableData = {
+      ...demoData,
+      sourceStatuses: demoData.sourceStatuses.map((status) => ({
+        ...status,
+        state: 'down' as const,
+      })),
+    };
+
+    render(<AppShell initialData={unavailableData} mapEnabled={false} />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '实时位置来源全部不可用，地图和机场静态信息仍可使用。',
+    );
   });
 
   it('opens complete flight details and returns to the selected map context', async () => {

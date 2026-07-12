@@ -656,7 +656,7 @@ git commit -m "style: deepen airport and route exploration"
 - Consumes: `FlightFilters`、`MapLayers`、`SourceStatus[]` 和 `RealtimeConnectionState`。
 - Produces: 即时筛选模型、来源状态列表和全局状态语义。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 增加：
 
@@ -667,21 +667,21 @@ expect(screen.getByText(/最后成功时间/)).toBeInTheDocument();
 expect(screen.getByText(/当前航班数不代表全球实际在途总数/)).toBeInTheDocument();
 ```
 
-- [ ] **Step 2: 运行测试并确认失败**
+- [x] **Step 2: 运行测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，当前筛选需要应用按钮或缺少覆盖说明。
 
-- [ ] **Step 3: 改为即时筛选模型**
+- [x] **Step 3: 改为即时筛选模型**
 
 `layer-filter-panel.tsx` 每次字段变化立即调用既有 `onApply(nextFilters, nextLayers)`；移除「应用」，保留「重置筛选」并恢复 `defaultFlightFilters` 与 `defaultMapLayers`。
 
-- [ ] **Step 4: 深化数据覆盖面板**
+- [x] **Step 4: 深化数据覆盖面板**
 
 `data-status-panel.tsx` 顶部显示总体结论、最后成功时间和覆盖提示；每个来源显示最近结果、最后成功时间、记录数、错误类型和缓存语义。不得输出内部错误栈。
 
-- [ ] **Step 5: 统一系统状态**
+- [x] **Step 5: 统一系统状态**
 
 `system-notice.tsx` 为 loading、empty、warning 和 critical 提供文本与图标差异；全部来源不可用时说明地图和机场静态信息仍可使用。
 

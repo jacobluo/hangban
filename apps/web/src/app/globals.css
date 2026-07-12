@@ -347,6 +347,11 @@ select:focus-visible {
   border-color: #d6a238;
   background: #fff8df;
 }
+.system-notice.critical {
+  border-color: color-mix(in srgb, var(--critical) 45%, var(--border));
+  background: color-mix(in srgb, var(--critical) 7%, white);
+  color: var(--critical);
+}
 .system-notice.empty {
   top: 86px;
   color: var(--ink-muted);
@@ -564,9 +569,15 @@ select:focus-visible {
 }
 .settings-actions {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 8px;
   margin-top: 18px;
+}
+.settings-actions output {
+  justify-self: end;
+  color: var(--ink-muted);
+  font-size: 11px;
 }
 .settings-actions .primary-button {
   margin: 0;
@@ -630,6 +641,15 @@ select:focus-visible {
   margin: 20px 0 10px;
   font-size: 12px;
 }
+.coverage-note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--action);
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
 .provider-list {
   display: grid;
   gap: 8px;
@@ -663,6 +683,27 @@ select:focus-visible {
 }
 .provider-row em {
   color: var(--warning);
+}
+.provider-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 10px;
+  margin: 6px 0;
+}
+.provider-details > div {
+  display: grid;
+  gap: 1px;
+}
+.provider-details > div:last-child {
+  grid-column: 1 / -1;
+}
+.provider-details dt {
+  color: var(--ink-muted);
+  font-size: 9px;
+}
+.provider-details dd {
+  margin: 0;
+  font-size: 10px;
 }
 .status-disclaimer {
   margin: 16px 0 0;

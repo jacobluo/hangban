@@ -2,13 +2,12 @@ import { expect, test } from '@playwright/test';
 
 test('shows a recoverable empty state when filters remove every flight', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: '地图图层' }).click();
+  await page.getByRole('button', { name: '打开图层与筛选' }).click();
   const altitude = page.getByRole('slider', { name: '最大高度' });
   await altitude.fill('1000');
-  await page.getByRole('button', { name: /应用筛选/ }).click();
 
   await expect(page.getByText(/当前筛选暂无航班/)).toBeVisible();
-  await page.getByRole('button', { name: '清除筛选' }).click();
+  await page.getByRole('button', { name: '重置筛选' }).click();
   await expect(page.getByText(/当前筛选暂无航班/)).not.toBeVisible();
 });
 

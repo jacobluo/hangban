@@ -1,4 +1,6 @@
-import { RefreshCw, WifiOff } from 'lucide-react';
+import { LoaderCircle, RefreshCw, SearchX, TriangleAlert, WifiOff } from 'lucide-react';
+
+import type { SourceStatus } from '@hangban/contracts';
 
 import type { RealtimeConnectionState } from '../lib/use-realtime-flights';
 
@@ -7,6 +9,7 @@ type Props = {
   totalFlights: number;
   visibleFlights: number;
   filtersActive: boolean;
+  sourceStatuses: SourceStatus[];
   onRetry: () => void;
   onClearFilters: () => void;
 };
@@ -16,13 +19,26 @@ export function SystemNotice({
   totalFlights,
   visibleFlights,
   filtersActive,
+  sourceStatuses,
   onRetry,
   onClearFilters,
 }: Props) {
   if (connectionState === 'loading') {
     return (
       <div className="system-notice loading" role="status">
+        <LoaderCircle size={17} aria-hidden="true" />
         正在连接实时航班网络…
+      </div>
+    );
+  }
+  if (sourceStatuses.length > 0 && sourceStatuses.every((status) => status.state === 'down')) {
+    return (
+      <div className="system-notice critical" role="alert">
+        <TriangleAlert size={17} aria-hidden="true" />
+        <span>实时位置来源全部不可用，地图和机场静态信息仍可使用。</span>
+        <button type="button" onClick={onRetry}>
+          <RefreshCw size={14} /> 重试实时位置
+        </button>
       </div>
     );
   }
@@ -44,6 +60,7 @@ export function SystemNotice({
   if (visibleFlights === 0) {
     return (
       <div className="system-notice empty" role="status">
+        <SearchX size={17} aria-hidden="true" />
         <span>
           {filtersActive && totalFlights > 0
             ? '当前筛选暂无航班，可清除条件或扩大地图范围。'
