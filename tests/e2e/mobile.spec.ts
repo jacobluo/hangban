@@ -3,6 +3,10 @@ import { expect, test } from '@playwright/test';
 test('keeps the core mobile experience inside the viewport', async ({ page }) => {
   test.skip(test.info().project.name !== 'mobile', 'mobile-only check');
   await page.goto('/');
+  const layersButton = page.getByRole('button', { name: '打开图层与筛选' });
+  const layersBox = await layersButton.boundingBox();
+  expect(layersBox?.width).toBeGreaterThanOrEqual(44);
+  expect(layersBox?.height).toBeGreaterThanOrEqual(44);
   await page.getByRole('tab', { name: '机场' }).click();
   await expect(page.getByRole('heading', { name: '机场探索' })).toBeVisible();
   const sizes = await page.evaluate(() => ({

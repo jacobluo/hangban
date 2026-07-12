@@ -720,7 +720,7 @@ git commit -m "style: unify filters and data states"
 - Consumes: Tasks 4–9 的全部组件和页面状态。
 - Produces: 1440 × 900 与 390 × 844 稳定布局、键盘焦点和 reduced-motion 行为。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 在组件测试中验证键盘搜索与关闭面板；在 E2E 中计算主要按钮 bounding box，断言宽高不小于 44 px：
 
@@ -730,7 +730,7 @@ expect(box?.width).toBeGreaterThanOrEqual(44);
 expect(box?.height).toBeGreaterThanOrEqual(44);
 ```
 
-- [ ] **Step 2: 运行聚焦测试并确认失败**
+- [x] **Step 2: 运行聚焦测试并确认失败**
 
 Run:
 
@@ -741,15 +741,15 @@ pnpm exec playwright test tests/e2e/mobile.spec.ts
 
 Expected: 至少一个触控尺寸或键盘焦点断言 FAIL。
 
-- [ ] **Step 3: 完成桌面布局规则**
+- [x] **Step 3: 完成桌面布局规则**
 
 在 CSS 中固定顶栏 64 px、左侧 320–360 px、右侧 340–380 px；两侧面板同时出现时保证地图最小有效宽度 640 px；宽度不足时优先折叠左侧列表。
 
-- [ ] **Step 4: 完成手机布局规则**
+- [x] **Step 4: 完成手机布局规则**
 
 390 × 844 下保证搜索框、地图控制和抽屉互不遮挡；隐藏桌面回看条与缩放按钮；复杂筛选使用全高抽屉；处理安全区和软键盘可用高度。
 
-- [ ] **Step 5: 添加动效与 reduced motion**
+- [x] **Step 5: 添加动效与 reduced motion**
 
 使用 160–220 ms 面板过渡、150–200 ms 状态过渡，并添加：
 

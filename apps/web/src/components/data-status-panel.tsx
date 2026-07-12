@@ -71,7 +71,13 @@ export function DataStatusPanel({
     >
       <div className="panel-heading settings-heading">
         <h2 id="data-status-title">数据覆盖与服务状态</h2>
-        <button className="icon-button" type="button" aria-label="关闭数据状态" onClick={onClose}>
+        <button
+          className="icon-button"
+          type="button"
+          aria-label="关闭数据状态"
+          autoFocus
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </div>

@@ -342,6 +342,10 @@ select:focus-visible {
   background: var(--surface);
   box-shadow: 0 8px 24px rgb(16 42 67 / 10%);
   font-size: 11px;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
 }
 .system-notice.warning {
   border-color: #d6a238;
@@ -381,6 +385,10 @@ select:focus-visible {
   padding: 20px;
   background: var(--surface);
   border-left: 1px solid var(--line);
+  transition:
+    transform 200ms ease,
+    max-height 200ms ease,
+    box-shadow 180ms ease;
 }
 .drawer-state-toggle {
   min-width: 36px;
@@ -851,6 +859,9 @@ select:focus-visible {
   box-shadow: 0 12px 30px rgb(16 42 67 / 7%);
   max-height: calc(100dvh - 180px);
   overflow-y: auto;
+  transition:
+    transform 200ms ease,
+    opacity 180ms ease;
 }
 .explorer-title-row {
   min-height: 30px;
@@ -1585,7 +1596,8 @@ select:focus-visible {
   }
   .topbar {
     grid-template-columns: auto 1fr;
-    padding: 0 14px;
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-left: max(14px, env(safe-area-inset-left));
   }
   .brand strong {
     font-size: 19px;
@@ -1607,8 +1619,8 @@ select:focus-visible {
     min-height: calc(100dvh - var(--topbar-height));
   }
   .search-wrap {
-    left: 12px;
-    right: 12px;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
     top: 10px;
     width: auto;
   }
@@ -1670,7 +1682,7 @@ select:focus-visible {
     top: auto;
     left: 8px;
     right: 8px;
-    bottom: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
     width: auto;
     max-height: 48dvh;
     padding: 16px;
@@ -1836,7 +1848,10 @@ select:focus-visible {
   }
   .settings-panel,
   .data-status-panel {
-    max-height: calc(100dvh - 92px);
+    top: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    max-height: none;
+    border-radius: var(--radius-lg);
   }
   .full-detail-page {
     inset: 0;
@@ -1916,5 +1931,6 @@ select:focus-visible {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

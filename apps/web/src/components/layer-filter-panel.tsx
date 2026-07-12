@@ -76,7 +76,13 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
     >
       <div className="panel-heading settings-heading">
         <h2 id="layer-panel-title">筛选与图层</h2>
-        <button className="icon-button" type="button" aria-label="关闭筛选与图层" onClick={onClose}>
+        <button
+          className="icon-button"
+          type="button"
+          aria-label="关闭筛选与图层"
+          autoFocus
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </div>

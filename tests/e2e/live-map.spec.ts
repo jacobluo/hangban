@@ -13,5 +13,5 @@ test('loads the live map and opens CA981 from search', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: 'CA981' })).toBeVisible();
   await expect(page.getByText('10,668 m')).toBeVisible();
-  await expect(page.getByLabel('实时数据状态')).toContainText('部分数据延迟');
+  await expect(page.getByRole('button', { name: /实时位置/ }).first()).toContainText('部分覆盖');
 });

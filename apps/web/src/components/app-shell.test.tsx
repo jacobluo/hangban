@@ -268,4 +268,15 @@ describe('AppShell', () => {
     fireEvent.keyDown(window, { key: 'k', metaKey: true });
     expect(screen.getByRole('searchbox', { name: '搜索航班、机场或城市' })).toHaveFocus();
   });
+
+  it('moves keyboard focus into an opened settings dialog and closes it with Escape', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
+    expect(screen.getByRole('button', { name: '关闭筛选与图层' })).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: '筛选与图层' })).not.toBeInTheDocument();
+  });
 });
