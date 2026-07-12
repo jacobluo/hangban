@@ -240,43 +240,43 @@ git commit -m "design: deepen global flight experience"
 - Consumes: Task 1 共用组件与 Task 2 地图层级。
 - Produces: 全部核心页面的已确认 Ardot 深化设计，解除前端实现门。
 
-- [ ] **Step 1: 深化机场探索**
+- [x] **Step 1: 深化机场探索**
 
 在 `04 / Airport` 创建桌面视野列表、全球中文搜索、机场选中详情和对应手机画板。桌面使用 320 px 左侧列表、地图和按需出现的 340 px 右侧详情；手机采用列表到详情的连续流程。
 
 Expected: 机场详情固定显示「周边航班不等同于到港或离港班次」；覆盖不足使用「当前未获得记录」而非 `0`。
 
-- [ ] **Step 2: 深化航线探索**
+- [x] **Step 2: 深化航线探索**
 
 在 `05 / Route` 创建未完整选择、已选择、无匹配航班和对应手机画板。起终点选择器结构对称；未选择完整时不绘制航线；已选择时显示大圆航线、距离、方向、匹配数、更新时间和覆盖度。
 
 Expected: 不出现排班总数、准点率或未获得的计划数据。
 
-- [ ] **Step 3: 深化筛选与图层**
+- [x] **Step 3: 深化筛选与图层**
 
 在 `06 / Filters and Layers` 中将图层与筛选分组。采用即时生效模型，只保留「重置筛选」；展示高度双端范围、航空公司多选和数据质量选项。创建桌面 320 px 面板和手机全高抽屉。
 
 Expected: 不出现同时存在的「应用」按钮；触控区域至少 44 × 44 px。
 
-- [ ] **Step 4: 深化数据覆盖与系统状态**
+- [x] **Step 4: 深化数据覆盖与系统状态**
 
 在 `07 / Data and System States` 创建正常、部分降级、全部来源不可用、加载、视野无航班、搜索无结果、网络断开、数据过期和定位拒绝画板。
 
 Expected: 每个状态包含文字和图标或结构差异；全部来源不可用时仍保留地图和机场静态信息。
 
-- [ ] **Step 5: 执行完整 Ardot 布局检查**
+- [x] **Step 5: 执行完整 Ardot 布局检查**
 
 对 `main_deep` 全部顶层画板运行 `capture_layout`，再批量截图每个分区的桌面与手机画板。
 
 Expected: 不存在重叠、裁切、文本溢出、未命名节点和不可用字体。
 
-- [ ] **Step 6: Ardot 设计评审门**
+- [x] **Step 6: Ardot 设计评审门**
 
 逐屏对照 `main` 与 `main_deep`，记录设计确认结论。未确认时只修改 Ardot，不修改前端源码。
 
 Expected: 产品负责人明确确认 `main_deep` 可以作为前端同步基线。
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add docs/superpowers/plans/2026-07-12-aero-chart-visual-deepening.md
