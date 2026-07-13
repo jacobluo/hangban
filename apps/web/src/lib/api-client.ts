@@ -2,10 +2,12 @@ import {
   airportListResponseSchema,
   airportSchema,
   mapSnapshotSchema,
+  weatherRadarStatusSchema,
   type Airport,
   type AirportListResponse,
   type Bbox,
   type MapSnapshot,
+  type WeatherRadarStatus,
 } from '@hangban/contracts';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:4000';
@@ -42,6 +44,22 @@ export async function searchAirports(query: string, signal?: AbortSignal): Promi
   if (!response.ok) throw new Error('机场搜索暂时不可用');
   const payload = (await response.json()) as { airports?: unknown };
   return airportSchema.array().parse(payload.airports ?? []);
+}
+
+export async function fetchWeatherRadarStatus(
+  signal?: AbortSignal,
+  fetchImpl: typeof fetch = fetch,
+): Promise<WeatherRadarStatus> {
+  const response = await fetchImpl(
+    `${apiBaseUrl}/api/v1/weather/radar`,
+    signal === undefined ? undefined : { signal },
+  );
+  if (!response.ok) throw new Error('天气雷达暂时不可用');
+  return weatherRadarStatusSchema.parse(await response.json());
+}
+
+export function resolveApiUrl(path: string): string {
+  return new URL(path, `${apiBaseUrl}/`).toString().replaceAll('%7B', '{').replaceAll('%7D', '}');
 }
 
 export function realtimeUrl(): string {

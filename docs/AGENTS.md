@@ -20,6 +20,11 @@
 - [`superpowers/plans/2026-07-12-production-persistence-compose.md`](superpowers/plans/2026-07-12-production-persistence-compose.md)：生产持久化、独立 ingestor、完整容器模式和真实中间件测试实施计划。
 - [`superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md`](superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md)：全部核心页面的浅色航空图表视觉深化规格、响应式规则和 Ardot 执行边界。
 - [`superpowers/plans/2026-07-12-aero-chart-visual-deepening.md`](superpowers/plans/2026-07-12-aero-chart-visual-deepening.md)：Ardot 深化、前端同步、视觉核对和验证门禁的实施步骤。
+- [`superpowers/specs/2026-07-13-desktop-data-status-page-design.md`](superpowers/specs/2026-07-13-desktop-data-status-page-design.md)：修复 PC 实时状态入口误用右侧栏的问题，明确桌面整页与手机全高页面规则。
+- [`superpowers/plans/2026-07-13-desktop-data-status-page.md`](superpowers/plans/2026-07-13-desktop-data-status-page.md)：桌面数据状态整页、手机全高页面、响应式回归和视觉验收的实施步骤。
+- [`superpowers/specs/2026-07-13-weather-radar-overlay-design.md`](superpowers/specs/2026-07-13-weather-radar-overlay-design.md)：RainViewer 天气雷达图层、24 小时短期缓存、代理安全和降级语义设计。
+- [`superpowers/specs/2026-07-13-weather-data-status-design.md`](superpowers/specs/2026-07-13-weather-data-status-design.md)：状态页主动检查天气数据、独立新鲜度状态和航班健康统计边界设计。
+- [`superpowers/plans/2026-07-13-weather-data-status.md`](superpowers/plans/2026-07-13-weather-data-status.md)：Ardot 状态页更新、天气数据卡片、主动检查、响应式回归和验证步骤。
 
 ## 状态说明
 
@@ -37,8 +42,9 @@
 | 航班补充数据 | 已实现 ADSBdb 异步补全、缓存、降级和推断路线说明                 |
 | 真实采集     | 独立 ingestor 通过 Redis 租约单写；免费来源只提供局部覆盖        |
 | 生产基础设施 | PostgreSQL/PostGIS、Redis、完整 Compose 与真实容器门禁已实现     |
+| 天气雷达     | 已实现地图雷达图层和状态页独立天气数据检查，并完成双视口视觉核对 |
 
-UI 当前包含全球实时地图、统一搜索、航班摘要与完整详情、机场探索、航线探索、筛选与图层、数据状态、短时位置回看，以及加载、空结果、断线和降级状态。首期不包含账号体系。
+UI 当前包含全球实时地图、统一搜索、航班摘要与完整详情、机场探索、航线探索、筛选与图层、默认关闭的天气雷达、数据状态、短时位置回看，以及加载、空结果、断线和降级状态。首期不包含账号体系。
 
 ## 设计文件
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
+    "smoke:weather-radar": "tsx src/smoke-weather-radar.ts",
     "test": "vitest run --root ../.. apps/api/src",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit"

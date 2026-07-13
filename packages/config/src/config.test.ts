@@ -5,6 +5,25 @@ import { fileURLToPath } from 'node:url';
 import { loadConfig } from './index';
 
 describe('loadConfig', () => {
+  it('loads bounded weather radar defaults', () => {
+    expect(loadConfig({})).toMatchObject({
+      weatherRadarEnabled: false,
+      rainViewerBaseUrl: 'https://api.rainviewer.com',
+      weatherRadarTimeoutMs: 8_000,
+      weatherRadarCacheTtlMs: 86_400_000,
+      weatherRadarCacheMaxEntries: 2_048,
+      weatherRadarCacheMaxBytes: 134_217_728,
+      weatherRadarMaxZoom: 7,
+    });
+  });
+
+  it('rejects unsafe weather radar limits', () => {
+    expect(() => loadConfig({ WEATHER_RADAR_MAX_ZOOM: '8' })).toThrow();
+    expect(() => loadConfig({ WEATHER_RADAR_CACHE_TTL_MS: '86400001' })).toThrow();
+    expect(() => loadConfig({ WEATHER_RADAR_CACHE_MAX_BYTES: '0' })).toThrow();
+    expect(() => loadConfig({ RAINVIEWER_BASE_URL: 'http://example.test' })).toThrow();
+  });
+
   it('defaults to demo mode without provider credentials', () => {
     expect(loadConfig({ NODE_ENV: 'test' }).dataMode).toBe('demo');
   });

@@ -1,7 +1,7 @@
 import Fastify, { type FastifyBaseLogger } from 'fastify';
 import cors from '@fastify/cors';
 
-import type { FlightPositionProvider } from '@hangban/adapters';
+import { createRainViewerProvider, type FlightPositionProvider } from '@hangban/adapters';
 import type { RuntimeConfig } from '@hangban/config';
 import type { Airport } from '@hangban/contracts';
 import type { ProviderScheduler } from '@hangban/ingestion';
@@ -21,7 +21,16 @@ import { registerMapRoutes } from './routes/map';
 import { registerRouteRoutes } from './routes/routes';
 import { registerSearchRoutes } from './routes/search';
 import { registerStatusRoutes } from './routes/status';
+import { registerWeatherRadarRoutes } from './routes/weather-radar';
 import type { AirportStore } from './airport-store';
+import { createWeatherRadarCache } from './weather-radar-cache';
+import {
+  createDisabledWeatherRadarService,
+  createWeatherRadarService,
+  type WeatherRadarService,
+} from './weather-radar-service';
+
+const MAX_WEATHER_RADAR_TILE_BYTES = 1_048_576;
 
 type BuildAppOptions = {
   repository: FlightRepository;
@@ -33,6 +42,7 @@ type BuildAppOptions = {
   airportStore?: AirportStore;
   readiness?: () => Promise<boolean>;
   realtimeAvailable?: () => boolean;
+  weatherRadarService?: WeatherRadarService;
 };
 
 export function buildApp({
@@ -45,6 +55,7 @@ export function buildApp({
   airportStore = repository.airportIndex(),
   readiness,
   realtimeAvailable,
+  weatherRadarService = createDisabledWeatherRadarService(),
 }: BuildAppOptions) {
   const app = Fastify({ logger });
   app.register(cors, { origin: webOrigin });
@@ -54,8 +65,37 @@ export function buildApp({
   void registerAirportRoutes(app, repository, airportStore);
   void registerRouteRoutes(app, repository, now, airportStore);
   void registerStatusRoutes(app, repository, readiness);
+  void registerWeatherRadarRoutes(app, weatherRadarService);
   registerRealtimeSocket(app, repository, hub, now, realtimePushIntervalMs);
+  app.addHook('onClose', async () => {
+    weatherRadarService.clear();
+  });
   return app;
+}
+
+export function createConfiguredWeatherRadarService(
+  config: RuntimeConfig,
+  now: () => Date = () => new Date(),
+): WeatherRadarService {
+  if (!config.weatherRadarEnabled) return createDisabledWeatherRadarService();
+
+  const provider = createRainViewerProvider({
+    baseUrl: config.rainViewerBaseUrl,
+    timeoutMs: config.weatherRadarTimeoutMs,
+    maxTileBytes: Math.min(MAX_WEATHER_RADAR_TILE_BYTES, config.weatherRadarCacheMaxBytes),
+  });
+  const cache = createWeatherRadarCache({
+    ttlMs: config.weatherRadarCacheTtlMs,
+    maxEntries: config.weatherRadarCacheMaxEntries,
+    maxBytes: config.weatherRadarCacheMaxBytes,
+  });
+  return createWeatherRadarService({
+    enabled: true,
+    provider,
+    cache,
+    now,
+    maxZoom: config.weatherRadarMaxZoom,
+  });
 }
 
 type CreateApiRuntimeOptions = {
@@ -93,7 +133,15 @@ export function createApiRuntime({
     airportIndex: createAirportIndex(airports, cities),
   });
   const hub = createRealtimeHub();
-  const app = buildApp({ repository, hub, now, logger, webOrigin: config.webOrigin });
+  const weatherRadarService = createConfiguredWeatherRadarService(config, now);
+  const app = buildApp({
+    repository,
+    hub,
+    now,
+    logger,
+    webOrigin: config.webOrigin,
+    weatherRadarService,
+  });
 
   const liveIngestion: LiveIngestionController | null = null;
   const demoTimer = setInterval(

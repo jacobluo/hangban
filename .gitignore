@@ -12,6 +12,7 @@ test-results/
 *.tsbuildinfo
 .ardot-qa/
 .qa/
+.superpowers/
 data/airports.json
 data/cities.json
 data/*.tmp

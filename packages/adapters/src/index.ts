@@ -9,4 +9,5 @@ export * from './ourairports';
 export * from './geonames';
 export * from './provider';
 export * from './provider-factory';
+export * from './rainviewer';
 export * from './readsb';

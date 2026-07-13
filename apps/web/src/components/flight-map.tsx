@@ -1,11 +1,12 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 
-import type { Airport, Bbox, Flight } from '@hangban/contracts';
+import type { Airport, Bbox, Flight, WeatherRadarAvailableStatus } from '@hangban/contracts';
 
 import { emptyLineData, greatCircleGeometry } from '../lib/map-geometry';
 import { type MapLayers } from '../lib/map-settings';
 import { resolveMapStyle } from '../lib/map-style';
+import { syncWeatherRadarLayer } from '../lib/weather-radar-layer';
 
 export type FlightMapHandle = {
   zoomIn: () => void;
@@ -20,6 +21,8 @@ type Props = {
   selectedFlight: Flight | null;
   selectedAirport: Airport | null;
   layers: MapLayers;
+  weatherRadar: WeatherRadarAvailableStatus | null;
+  weatherRadarTileTemplate: string | null;
   routeOrigin: Airport | null;
   routeDestination: Airport | null;
   enabled?: boolean;
@@ -160,6 +163,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     selectedFlight,
     selectedAirport,
     layers,
+    weatherRadar,
+    weatherRadarTileTemplate,
     routeOrigin,
     routeDestination,
     enabled = true,
@@ -179,6 +184,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
   const selectedFlightRef = useRef(selectedFlight);
   const selectedAirportRef = useRef(selectedAirport);
   const layersRef = useRef(layers);
+  const weatherRadarRef = useRef(weatherRadar);
+  const weatherRadarTileTemplateRef = useRef(weatherRadarTileTemplate);
   const routeActiveRef = useRef(routeActive);
   const routeOriginRef = useRef(routeOrigin);
   const routeDestinationRef = useRef(routeDestination);
@@ -190,6 +197,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
   selectedFlightRef.current = selectedFlight;
   selectedAirportRef.current = selectedAirport;
   layersRef.current = layers;
+  weatherRadarRef.current = weatherRadar;
+  weatherRadarTileTemplateRef.current = weatherRadarTileTemplate;
   routeActiveRef.current = routeActive;
   routeOriginRef.current = routeOrigin;
   routeDestinationRef.current = routeDestination;
@@ -247,6 +256,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
   useEffect(() => {
     if (!enabled || containerRef.current === null || mapRef.current !== null) return;
     let disposed = false;
+    let mountedMap: MapLibreMap | null = null;
+    let radarStyleLoadHandler: (() => void) | null = null;
     void import('maplibre-gl').then(({ Map }) => {
       if (disposed || containerRef.current === null) return;
       const map = new Map({
@@ -256,7 +267,18 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
         attributionControl: false,
         style: resolveMapStyle(process.env.NEXT_PUBLIC_MAP_STYLE_URL),
       });
+      mountedMap = map;
       mapRef.current = map;
+      radarStyleLoadHandler = () => {
+        if (
+          map.getLayer('planned-route') === undefined &&
+          map.getLayer('airport-points') === undefined
+        ) {
+          return;
+        }
+        syncWeatherRadarLayer(map, weatherRadarRef.current, weatherRadarTileTemplateRef.current);
+      };
+      map.on('style.load', radarStyleLoadHandler);
       const reportZoom = () => setZoomLevel(map.getZoom());
       map.on('zoomend', reportZoom);
       if (pendingZoomRef.current !== 0) {
@@ -365,6 +387,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
           paint: { 'text-color': '#102a43', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
         });
 
+        syncWeatherRadarLayer(map, weatherRadarRef.current, weatherRadarTileTemplateRef.current);
+
         const currentLayers = layersRef.current;
         setLayerVisibility(map, 'osm', currentLayers.baseMap);
         setLayerVisibility(map, 'flight-selection-halo', currentLayers.flights);
@@ -411,8 +435,11 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     });
     return () => {
       disposed = true;
-      mapRef.current?.remove();
-      mapRef.current = null;
+      if (mountedMap !== null && radarStyleLoadHandler !== null) {
+        mountedMap.off('style.load', radarStyleLoadHandler);
+      }
+      mountedMap?.remove();
+      if (mapRef.current === mountedMap) mapRef.current = null;
     };
   }, [enabled]);
 
@@ -430,6 +457,12 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     const source = mapRef.current?.getSource('airports') as GeoJSONSource | undefined;
     source?.setData(airportsToGeoJson(airports, selectedAirport));
   }, [airports, selectedAirport]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map === null || !map.isStyleLoaded()) return;
+    syncWeatherRadarLayer(map, weatherRadar, weatherRadarTileTemplate);
+  }, [weatherRadar, weatherRadarTileTemplate]);
 
   useEffect(() => {
     const map = mapRef.current;

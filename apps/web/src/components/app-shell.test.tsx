@@ -3,14 +3,31 @@
 import { render, screen, within } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mapFlyTo } = vi.hoisted(() => ({ mapFlyTo: vi.fn() }));
+const { mapFlyTo, weatherRadarState, useWeatherRadarMock, flightMapProps } = vi.hoisted(() => ({
+  mapFlyTo: vi.fn(),
+  weatherRadarState: {
+    status: null as null | { available: boolean },
+    radar: null,
+    tileTemplate: null,
+    loading: false,
+    error: null as string | null,
+    retry: vi.fn(),
+  },
+  useWeatherRadarMock: vi.fn(),
+  flightMapProps: { current: null as Record<string, unknown> | null },
+}));
+
+vi.mock('../lib/use-weather-radar', () => ({
+  useWeatherRadar: useWeatherRadarMock,
+}));
 
 vi.mock('./flight-map', async () => {
   const React = await import('react');
   return {
-    FlightMap: React.forwardRef(function MockFlightMap(_props, ref) {
+    FlightMap: React.forwardRef(function MockFlightMap(props, ref) {
+      flightMapProps.current = props as Record<string, unknown>;
       React.useImperativeHandle(ref, () => ({
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
@@ -26,6 +43,51 @@ import { AppShell } from './app-shell';
 import { demoData } from '../lib/demo-data';
 
 describe('AppShell', () => {
+  beforeEach(() => {
+    weatherRadarState.status = null;
+    weatherRadarState.radar = null;
+    weatherRadarState.tileTemplate = null;
+    weatherRadarState.loading = false;
+    weatherRadarState.error = null;
+    weatherRadarState.retry.mockReset();
+    useWeatherRadarMock.mockImplementation(() => weatherRadarState);
+  });
+
+  it('keeps weather radar disabled by default and passes no radar to the map', () => {
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(useWeatherRadarMock).toHaveBeenCalledWith(false);
+    expect(flightMapProps.current).toMatchObject({
+      weatherRadar: null,
+      weatherRadarTileTemplate: null,
+    });
+  });
+
+  it('turns weather radar intent off after a non-fatal weather failure', async () => {
+    weatherRadarState.error = '天气雷达暂时不可用';
+    const user = userEvent.setup();
+
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
+    await user.click(screen.getByRole('checkbox', { name: '天气雷达' }));
+    expect(await screen.findByText('天气雷达暂时不可用，航班数据不受影响。')).toBeVisible();
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(false);
+    expect(screen.getByLabelText('实时航班地图')).toBeVisible();
+  });
+
+  it('keeps a status-page-only weather failure out of the map notice', async () => {
+    weatherRadarState.error = '天气雷达暂时不可用';
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    expect(screen.getByRole('region', { name: '天气数据' })).toHaveTextContent('检查失败');
+    await user.click(screen.getByRole('button', { name: '返回地图' }));
+
+    expect(screen.queryByText('天气雷达暂时不可用，航班数据不受影响。')).not.toBeInTheDocument();
+  });
+
   it('exposes the live map and freshness status as primary application landmarks', () => {
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
@@ -131,13 +193,27 @@ describe('AppShell', () => {
     expect(screen.queryByText('已显示 2 / 8 架航班')).not.toBeInTheDocument();
   });
 
-  it('opens source health details from the compact data status', async () => {
+  it('enables the weather switch and disables only it while loading', async () => {
+    weatherRadarState.loading = true;
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
-    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
 
-    expect(screen.getByRole('dialog', { name: '数据覆盖与服务状态' })).toBeVisible();
+    expect(screen.getByRole('checkbox', { name: '天气雷达加载中' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: '航空底图' })).toBeEnabled();
+    expect(screen.getByRole('checkbox', { name: '实时航班' })).toBeEnabled();
+  });
+
+  it('opens source health as a full page and returns to the preserved map context', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    const statusTrigger = screen.getByRole('button', { name: '实时位置，部分覆盖' });
+    await user.click(statusTrigger);
+
+    expect(screen.getByRole('region', { name: '数据覆盖与服务状态' })).toBeVisible();
+    expect(screen.queryByRole('main', { name: '全球实时航班地图' })).not.toBeInTheDocument();
     expect(screen.getByText('ADSB.lol')).toBeVisible();
     expect(screen.getByText('OpenSky Network')).toBeVisible();
     expect(screen.getByText('Airplanes.live')).toBeVisible();
@@ -145,8 +221,57 @@ describe('AppShell', () => {
     expect(screen.getAllByText(/最后成功时间/).length).toBeGreaterThan(0);
     expect(screen.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: '关闭数据状态' }));
-    expect(screen.queryByRole('dialog', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '返回地图' }));
+
+    expect(screen.queryByRole('region', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
+    expect(statusTrigger).toHaveFocus();
+  });
+
+  it('checks weather when status page opens without enabling the map layer', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(false);
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(true);
+    expect(flightMapProps.current).toMatchObject({ weatherRadar: null });
+  });
+
+  it('retries weather from the data status page', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    await user.click(screen.getByRole('button', { name: '重新获取数据' }));
+
+    expect(weatherRadarState.retry).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns from the full-page source health view with Escape', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    expect(screen.getByRole('region', { name: '数据覆盖与服务状态' })).toBeVisible();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('region', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
+  });
+
+  it('does not report all services healthy before source status is available', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={{ ...demoData, sourceStatuses: [] }} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，等待来源状态' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('尚未获得来源状态');
+    expect(screen.getByText('尚未获得数据源状态')).toBeVisible();
+    expect(screen.queryByText('全部服务正常')).not.toBeInTheDocument();
   });
 
   it('keeps static map context available when every realtime source is unavailable', () => {
