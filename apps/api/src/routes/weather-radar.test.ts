@@ -70,7 +70,7 @@ describe('weather radar routes', () => {
     expect(response.body).not.toContain('tilecache.rainviewer.com');
   });
 
-  it('returns cacheable PNG bytes', async () => {
+  it('returns PNG bytes with a conservative revalidation policy', async () => {
     const app = buildTestApp(radarService());
     apps.push(app);
 
@@ -82,7 +82,7 @@ describe('weather radar routes', () => {
     expect(response.statusCode).toBe(200);
     expect(response.rawPayload).toEqual(Buffer.from([137, 80, 78, 71]));
     expect(response.headers['content-type']).toContain('image/png');
-    expect(response.headers['cache-control']).toBe('public, max-age=300, stale-if-error=86400');
+    expect(response.headers['cache-control']).toBe('public, max-age=0, must-revalidate');
   });
 
   it('returns the stable disabled status', async () => {
@@ -167,6 +167,7 @@ describe('weather radar routes', () => {
     });
     expect(response.body).not.toContain('tilecache.rainviewer.com');
     expect(response.body).not.toContain('upstream body');
+    expect(response.headers['cache-control']).toBeUndefined();
   });
 
   it('keeps flight map routes available after a radar failure', async () => {
@@ -208,11 +209,12 @@ describe('configured weather radar runtime', () => {
   });
 
   it('defers network access until the first status request in demo mode', async () => {
+    const runtimeNow = new Date('2020-01-01T00:10:00.000Z');
     const fetchMock = vi.fn<typeof fetch>(async () =>
       Response.json({
         host: 'https://tilecache.rainviewer.com',
         radar: {
-          past: [{ time: 1_783_929_600, path: '/v2/radar/current' }],
+          past: [{ time: 1_577_836_800, path: '/v2/radar/current' }],
         },
       }),
     );
@@ -221,13 +223,13 @@ describe('configured weather radar runtime', () => {
       config: loadConfig({ DATA_MODE: 'demo', WEATHER_RADAR_ENABLED: 'true' }),
       airports,
       logger: false,
-      now: () => NOW,
+      now: () => runtimeNow,
     });
 
     expect(fetchMock).not.toHaveBeenCalled();
     const response = await runtime.app.inject({ method: 'GET', url: '/api/v1/weather/radar' });
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({ available: true, frameId: 'frame-1783929600' });
+    expect(response.json()).toMatchObject({ available: true, frameId: 'frame-1577836800' });
     expect(fetchMock).toHaveBeenCalledOnce();
     await runtime.app.close();
   });

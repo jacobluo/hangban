@@ -12,6 +12,7 @@ import {
 
 import { buildApp, createConfiguredWeatherRadarService } from './app';
 import { createMemoryRepository } from './memory-repository';
+import type { WeatherRadarService } from './weather-radar-service';
 
 const WORLD: Bbox = [-180, -90, 180, 90];
 
@@ -36,16 +37,22 @@ export async function createExternalApiRuntime(
   if (config.dataMode !== 'live' || !config.databaseUrl || !config.redisUrl) {
     throw new Error('EXTERNAL_STORES_REQUIRED');
   }
-  const weatherRadarService = createConfiguredWeatherRadarService(config);
-  const pool = createPostgresPool({
-    connectionString: config.databaseUrl,
-    max: config.databasePoolMax,
-  });
-  const connections = createRedisConnections(config.redisUrl);
+  let weatherRadarService: WeatherRadarService | undefined;
+  let pool: ReturnType<typeof createPostgresPool> | undefined;
+  let connections: ReturnType<typeof createRedisConnections> | undefined;
   try {
-    await Promise.all([checkPostgres(pool), connections.connect()]);
-    const airportStore = new PostgresAirportStore(pool);
-    const flightStore = new RedisFlightStore(connections.command, {
+    weatherRadarService = createConfiguredWeatherRadarService(config);
+    const activeWeatherRadarService = weatherRadarService;
+    pool = createPostgresPool({
+      connectionString: config.databaseUrl,
+      max: config.databasePoolMax,
+    });
+    const activePool = pool;
+    connections = createRedisConnections(config.redisUrl);
+    const activeConnections = connections;
+    await Promise.all([checkPostgres(activePool), activeConnections.connect()]);
+    const airportStore = new PostgresAirportStore(activePool);
+    const flightStore = new RedisFlightStore(activeConnections.command, {
       prefix: config.redisKeyPrefix,
     });
     const [flights, statuses] = await Promise.all([
@@ -53,7 +60,7 @@ export async function createExternalApiRuntime(
       flightStore.sourceStatuses(),
     ]);
     const repository = createMemoryRepository({ airports: [], flights, sourceStatuses: statuses });
-    const unsubscribe = await subscribeChanges(connections.subscriber, {
+    const unsubscribe = await subscribeChanges(activeConnections.subscriber, {
       prefix: config.redisKeyPrefix,
       onEvent: (event) => {
         if (event.type === 'flight.upsert') {
@@ -75,9 +82,9 @@ export async function createExternalApiRuntime(
     const readiness = async () => {
       await within(
         Promise.all([
-          checkPostgres(pool),
-          pool.query('SELECT 1 FROM schema_migrations LIMIT 1'),
-          checkRedis(connections.command),
+          checkPostgres(activePool),
+          activePool.query('SELECT 1 FROM schema_migrations LIMIT 1'),
+          checkRedis(activeConnections.command),
         ]),
         2_000,
       );
@@ -87,19 +94,22 @@ export async function createExternalApiRuntime(
       repository,
       airportStore,
       readiness,
-      realtimeAvailable: () => connections.command.isReady,
+      realtimeAvailable: () => activeConnections.command.isReady,
       logger,
       webOrigin: config.webOrigin,
-      weatherRadarService,
+      weatherRadarService: activeWeatherRadarService,
     });
     app.addHook('onClose', async () => {
       await unsubscribe();
-      await Promise.all([pool.end(), connections.close()]);
+      await Promise.all([activePool.end(), activeConnections.close()]);
     });
     return { app, repository, airportStore, flightStore };
   } catch (error) {
-    weatherRadarService.clear();
-    await Promise.allSettled([pool.end(), connections.close()]);
+    weatherRadarService?.clear();
+    const cleanup: Promise<unknown>[] = [];
+    if (pool) cleanup.push(pool.end());
+    if (connections) cleanup.push(connections.close());
+    await Promise.allSettled(cleanup);
     throw error;
   }
 }

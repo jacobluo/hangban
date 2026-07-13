@@ -73,7 +73,10 @@ export function buildApp({
   return app;
 }
 
-export function createConfiguredWeatherRadarService(config: RuntimeConfig): WeatherRadarService {
+export function createConfiguredWeatherRadarService(
+  config: RuntimeConfig,
+  now: () => Date = () => new Date(),
+): WeatherRadarService {
   if (!config.weatherRadarEnabled) return createDisabledWeatherRadarService();
 
   const provider = createRainViewerProvider({
@@ -90,6 +93,7 @@ export function createConfiguredWeatherRadarService(config: RuntimeConfig): Weat
     enabled: true,
     provider,
     cache,
+    now,
     maxZoom: config.weatherRadarMaxZoom,
   });
 }
@@ -129,7 +133,7 @@ export function createApiRuntime({
     airportIndex: createAirportIndex(airports, cities),
   });
   const hub = createRealtimeHub();
-  const weatherRadarService = createConfiguredWeatherRadarService(config);
+  const weatherRadarService = createConfiguredWeatherRadarService(config, now);
   const app = buildApp({
     repository,
     hub,
