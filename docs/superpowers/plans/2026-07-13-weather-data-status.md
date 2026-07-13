@@ -555,6 +555,7 @@ git commit -m "test: verify weather data status"
 **Files:**
 
 - Modify: `docs/AGENTS.md`
+- Modify: `docs/product-design.md`
 - Modify: `docs/superpowers/plans/2026-07-13-weather-data-status.md`
 
 **Interfaces:**
@@ -562,7 +563,7 @@ git commit -m "test: verify weather data status"
 - Consumes: Tasks 1–4 的实现、测试结果和视觉核对产物。
 - Produces: 已勾选的实施记录和通过仓库门禁的可交付分支。
 
-- [ ] **Step 1: 更新文档状态**
+- [x] **Step 1: 更新文档状态**
 
 在 `docs/AGENTS.md` 的文档索引保留本计划链接，并把状态说明中的天气雷达描述更新为：
 
@@ -570,9 +571,11 @@ git commit -m "test: verify weather data status"
 已实现地图雷达图层和状态页独立天气数据检查，并完成 1440 × 900 与 390 × 844 视觉核对
 ```
 
+在 `docs/product-design.md` 的「数据覆盖与服务状态」中记录主动检查、独立天气卡片和航班健康统计边界。
+
 勾选本计划中所有已完成步骤；如果实现与计划不同，在对应 Task 下写明实际选择和原因。
 
-- [ ] **Step 2: 运行格式检查**
+- [x] **Step 2: 运行格式检查**
 
 Run:
 
@@ -582,7 +585,7 @@ pnpm format:check
 
 Expected: `All matched files use Prettier code style!`
 
-- [ ] **Step 3: 运行完整验证**
+- [x] **Step 3: 运行完整验证**
 
 Run:
 
@@ -592,7 +595,7 @@ pnpm verify
 
 Expected: lint、typecheck、unit/component、integration、build 和 Playwright E2E 全部通过；只有仓库已有的条件性 skip 可以保留。
 
-- [ ] **Step 4: 检查工作区与提交范围**
+- [x] **Step 4: 检查工作区与提交范围**
 
 Run:
 
@@ -603,10 +606,10 @@ git diff --check
 
 Expected: 只包含本 Task 的文档勾选和状态说明，无 `next-env.d.ts` 等开发服务器生成改动，无空白错误。
 
-- [ ] **Step 5: 提交最终实施记录**
+- [x] **Step 5: 提交最终实施记录**
 
 ```bash
-git add docs/AGENTS.md docs/superpowers/plans/2026-07-13-weather-data-status.md
+git add docs/AGENTS.md docs/product-design.md docs/superpowers/plans/2026-07-13-weather-data-status.md
 git commit -m "docs: complete weather data status"
 ```
 
