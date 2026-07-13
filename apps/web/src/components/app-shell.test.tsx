@@ -131,13 +131,15 @@ describe('AppShell', () => {
     expect(screen.queryByText('已显示 2 / 8 架航班')).not.toBeInTheDocument();
   });
 
-  it('opens source health details from the compact data status', async () => {
+  it('opens source health as a full page and returns to the preserved map context', async () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
-    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    const statusTrigger = screen.getByRole('button', { name: '实时位置，部分覆盖' });
+    await user.click(statusTrigger);
 
-    expect(screen.getByRole('dialog', { name: '数据覆盖与服务状态' })).toBeVisible();
+    expect(screen.getByRole('region', { name: '数据覆盖与服务状态' })).toBeVisible();
+    expect(screen.queryByRole('main', { name: '全球实时航班地图' })).not.toBeInTheDocument();
     expect(screen.getByText('ADSB.lol')).toBeVisible();
     expect(screen.getByText('OpenSky Network')).toBeVisible();
     expect(screen.getByText('Airplanes.live')).toBeVisible();
@@ -145,8 +147,25 @@ describe('AppShell', () => {
     expect(screen.getAllByText(/最后成功时间/).length).toBeGreaterThan(0);
     expect(screen.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: '关闭数据状态' }));
-    expect(screen.queryByRole('dialog', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '返回地图' }));
+
+    expect(screen.queryByRole('region', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
+    expect(statusTrigger).toHaveFocus();
+  });
+
+  it('returns from the full-page source health view with Escape', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    expect(screen.getByRole('region', { name: '数据覆盖与服务状态' })).toBeVisible();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('region', { name: '数据覆盖与服务状态' })).not.toBeInTheDocument();
+    expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
   });
 
   it('keeps static map context available when every realtime source is unavailable', () => {

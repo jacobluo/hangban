@@ -35,10 +35,31 @@ test('map controls, filters, source status and complete details change real UI s
   } else {
     await page.getByRole('button', { name: /实时位置/ }).click();
   }
-  await expect(page.getByRole('dialog', { name: '数据覆盖与服务状态' })).toBeVisible();
+  const statusPage = page.getByRole('region', { name: '数据覆盖与服务状态' });
+  await expect(statusPage).toBeVisible();
+  await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeHidden();
   await expect(page.getByText('Airplanes.live')).toBeVisible();
   await expect(page.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
-  await page.getByRole('button', { name: '关闭数据状态' }).click();
+  await expect
+    .poll(async () => Math.round((await statusPage.boundingBox())?.width ?? 0))
+    .toBe(testInfo.project.name === 'mobile' ? 390 : 1440);
+  await expect
+    .poll(() =>
+      statusPage.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      })),
+    )
+    .toEqual(
+      testInfo.project.name === 'mobile'
+        ? { clientWidth: 390, scrollWidth: 390 }
+        : {
+            clientWidth: 1440,
+            scrollWidth: 1440,
+          },
+    );
+  await page.getByRole('button', { name: '返回地图' }).click();
+  await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
 
   await page.getByRole('searchbox', { name: '搜索航班、机场或城市' }).fill('CA981');
   await page.getByRole('button', { name: /CA981.*中国国际航空/ }).click();
