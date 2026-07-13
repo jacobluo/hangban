@@ -50,7 +50,14 @@ export async function createExternalApiRuntime(
     const activePool = pool;
     connections = createRedisConnections(config.redisUrl);
     const activeConnections = connections;
-    await Promise.all([checkPostgres(activePool), activeConnections.connect()]);
+    const initializationResults = await Promise.allSettled([
+      checkPostgres(activePool),
+      activeConnections.connect(),
+    ]);
+    const initializationFailure = initializationResults.find(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    );
+    if (initializationFailure) throw initializationFailure.reason;
     const airportStore = new PostgresAirportStore(activePool);
     const flightStore = new RedisFlightStore(activeConnections.command, {
       prefix: config.redisKeyPrefix,
