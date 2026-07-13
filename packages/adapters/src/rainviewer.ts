@@ -4,7 +4,7 @@ const RAINVIEWER_TILE_HOST = 'https://tilecache.rainviewer.com';
 const RAINVIEWER_API_BASE_URL = 'https://api.rainviewer.com';
 
 const radarFrameSchema = z.object({
-  time: z.number().int().positive(),
+  time: z.number().int().positive().max(8_640_000_000),
   path: z.string().regex(/^\/v2\/radar\/[A-Za-z0-9_-]+$/),
 });
 
@@ -71,6 +71,60 @@ function normalizeRequestError(error: unknown): WeatherRadarProviderError {
   return new WeatherRadarProviderError('UPSTREAM_ERROR', 'RainViewer request failed');
 }
 
+async function readBoundedBody(response: Response, maxBytes: number): Promise<Uint8Array> {
+  const contentLength = response.headers.get('content-length')?.trim();
+  if (contentLength && /^\d+$/.test(contentLength) && Number(contentLength) > maxBytes) {
+    throw new WeatherRadarProviderError(
+      'INVALID_RESPONSE',
+      'RainViewer returned an oversized tile',
+    );
+  }
+
+  if (!response.body) return new Uint8Array();
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        try {
+          await reader.cancel();
+        } catch {
+          // Preserve the stable size error if upstream cancellation also fails.
+        }
+        throw new WeatherRadarProviderError(
+          'INVALID_RESPONSE',
+          'RainViewer returned an oversized tile',
+        );
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    if (!(error instanceof WeatherRadarProviderError)) {
+      try {
+        await reader.cancel();
+      } catch {
+        // Preserve the normalized read error if cancellation also fails.
+      }
+    }
+    throw normalizeRequestError(error);
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 export function createRainViewerProvider({
   baseUrl,
   fetchImpl = fetch,
@@ -107,13 +161,13 @@ export function createRainViewerProvider({
         payload = await (await request(`${normalizedBaseUrl}/weather-maps.json`)).json();
       } catch (error) {
         if (error instanceof WeatherRadarProviderError) throw error;
-        if (
-          error instanceof DOMException &&
-          (error.name === 'AbortError' || error.name === 'TimeoutError')
-        ) {
-          throw normalizeRequestError(error);
+        if (error instanceof SyntaxError) {
+          throw new WeatherRadarProviderError(
+            'INVALID_RESPONSE',
+            'RainViewer returned invalid JSON',
+          );
         }
-        throw new WeatherRadarProviderError('INVALID_RESPONSE', 'RainViewer returned invalid JSON');
+        throw normalizeRequestError(error);
       }
 
       const parsed = weatherMapsSchema.safeParse(payload);
@@ -159,12 +213,7 @@ export function createRainViewerProvider({
           'RainViewer returned a non-PNG tile',
         );
       }
-      let bytes: Uint8Array;
-      try {
-        bytes = new Uint8Array(await response.arrayBuffer());
-      } catch (error) {
-        throw normalizeRequestError(error);
-      }
+      const bytes = await readBoundedBody(response, maxTileBytes);
       if (bytes.byteLength > maxTileBytes) {
         throw new WeatherRadarProviderError(
           'INVALID_RESPONSE',

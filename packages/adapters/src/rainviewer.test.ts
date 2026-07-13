@@ -133,6 +133,65 @@ describe('RainViewer provider', () => {
     ).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
   });
 
+  it('rejects an oversized Content-Length before reading the tile body', async () => {
+    const response = new Response(new Uint8Array([1, 2, 3, 4, 5]), {
+      headers: { 'content-length': '5', 'content-type': 'image/png' },
+    });
+    const arrayBufferSpy = vi.spyOn(response, 'arrayBuffer');
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(async () => response) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(
+      provider.fetchTile(
+        {
+          upstreamHost: 'https://tilecache.rainviewer.com',
+          upstreamPath: '/v2/radar/frame',
+        },
+        7,
+        1,
+        2,
+      ),
+    ).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+    expect(arrayBufferSpy).not.toHaveBeenCalled();
+  });
+
+  it('cancels a chunked tile body as soon as it exceeds maxTileBytes', async () => {
+    const cancel = vi.fn();
+    const chunks = [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])];
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const chunk = chunks.shift();
+        if (chunk) controller.enqueue(chunk);
+      },
+      cancel,
+    });
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(
+        async () => new Response(body, { headers: { 'content-type': 'image/png' } }),
+      ) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(
+      provider.fetchTile(
+        {
+          upstreamHost: 'https://tilecache.rainviewer.com',
+          upstreamPath: '/v2/radar/frame',
+        },
+        7,
+        1,
+        2,
+      ),
+    ).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     [Response.error(), 'UPSTREAM_ERROR'],
     [new DOMException('timed out', 'AbortError'), 'TIMEOUT'],
@@ -218,9 +277,13 @@ describe('RainViewer provider', () => {
   });
 
   it('normalizes an aborted tile body read', async () => {
-    const response = new Response(null, { headers: { 'content-type': 'image/png' } });
-    vi.spyOn(response, 'arrayBuffer').mockRejectedValue(
-      new DOMException('timed out', 'AbortError'),
+    const response = new Response(
+      new ReadableStream({
+        pull(controller) {
+          controller.error(new DOMException('timed out', 'AbortError'));
+        },
+      }),
+      { headers: { 'content-type': 'image/png' } },
     );
     const provider = createRainViewerProvider({
       baseUrl: 'https://api.rainviewer.com',
@@ -253,5 +316,81 @@ describe('RainViewer provider', () => {
     });
 
     await expect(provider.fetchLatestFrame()).rejects.toMatchObject({ code: 'TIMEOUT' });
+  });
+
+  it('normalizes a non-abort metadata body read failure as an upstream error', async () => {
+    const response = metadataResponse({});
+    vi.spyOn(response, 'json').mockRejectedValue(new Error('socket details'));
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(async () => response) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(provider.fetchLatestFrame()).rejects.toMatchObject({ code: 'UPSTREAM_ERROR' });
+  });
+
+  it('classifies malformed metadata JSON as an invalid response', async () => {
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(
+        async () => new Response('{', { headers: { 'content-type': 'application/json' } }),
+      ) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(provider.fetchLatestFrame()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('rejects a frame timestamp outside the JavaScript Date range', async () => {
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(async () =>
+        metadataResponse({
+          host: 'https://tilecache.rainviewer.com',
+          radar: {
+            past: [{ time: 8_640_000_000_001, path: '/v2/radar/out-of-range' }],
+          },
+        }),
+      ) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(provider.fetchLatestFrame()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('uses the timeout signal to abort a hanging tile body', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async (_input, init) => {
+      const signal = init?.signal;
+      const body = new ReadableStream({
+        start(controller) {
+          const abort = () => controller.error(signal?.reason);
+          if (signal?.aborted) abort();
+          else signal?.addEventListener('abort', abort, { once: true });
+        },
+      });
+      return new Response(body, { headers: { 'content-type': 'image/png' } });
+    });
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl,
+      timeoutMs: 10,
+      maxTileBytes: 4,
+    });
+
+    await expect(
+      provider.fetchTile(
+        {
+          upstreamHost: 'https://tilecache.rainviewer.com',
+          upstreamPath: '/v2/radar/frame',
+        },
+        7,
+        1,
+        2,
+      ),
+    ).rejects.toMatchObject({ code: 'TIMEOUT' });
   });
 });
