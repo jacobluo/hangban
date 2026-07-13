@@ -1005,6 +1005,7 @@ git commit -m "feat: manage weather radar state"
 - Create: `apps/web/src/components/weather-radar-legend.test.tsx`
 - Modify: `apps/web/src/components/app-shell.tsx`
 - Modify: `apps/web/src/components/flight-map.tsx`
+- Create: `apps/web/src/components/flight-map.test.tsx`
 - Modify: `apps/web/src/components/layer-filter-panel.tsx`
 - Modify: `apps/web/src/components/app-shell.test.tsx`
 - Modify: `apps/web/src/app/globals.css`

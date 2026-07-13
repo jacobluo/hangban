@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WeatherRadarAvailableStatus } from '@hangban/contracts';
@@ -56,6 +57,13 @@ describe('WeatherRadarLegend', () => {
     expect(screen.getByText(/数据延迟 · 16:00/)).toBeVisible();
     expect(screen.getByLabelText('天气雷达图例')).toHaveClass(
       'weather-radar-legend--playback-active',
+    );
+
+    const css = readFileSync('apps/web/src/app/globals.css', 'utf8');
+    const mobileStyles = css.slice(css.indexOf('@media (max-width: 700px)'));
+    expect(mobileStyles).toMatch(/\.weather-radar-legend\s*\{[^}]*top:\s*84px;[^}]*}/s);
+    expect(mobileStyles).toMatch(
+      /\.weather-radar-legend--playback-active\s*\{[^}]*top:\s*72px;[^}]*}/s,
     );
   });
 });

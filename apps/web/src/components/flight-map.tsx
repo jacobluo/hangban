@@ -256,6 +256,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
   useEffect(() => {
     if (!enabled || containerRef.current === null || mapRef.current !== null) return;
     let disposed = false;
+    let mountedMap: MapLibreMap | null = null;
+    let radarStyleLoadHandler: (() => void) | null = null;
     void import('maplibre-gl').then(({ Map }) => {
       if (disposed || containerRef.current === null) return;
       const map = new Map({
@@ -265,7 +267,18 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
         attributionControl: false,
         style: resolveMapStyle(process.env.NEXT_PUBLIC_MAP_STYLE_URL),
       });
+      mountedMap = map;
       mapRef.current = map;
+      radarStyleLoadHandler = () => {
+        if (
+          map.getLayer('planned-route') === undefined &&
+          map.getLayer('airport-points') === undefined
+        ) {
+          return;
+        }
+        syncWeatherRadarLayer(map, weatherRadarRef.current, weatherRadarTileTemplateRef.current);
+      };
+      map.on('style.load', radarStyleLoadHandler);
       const reportZoom = () => setZoomLevel(map.getZoom());
       map.on('zoomend', reportZoom);
       if (pendingZoomRef.current !== 0) {
@@ -422,8 +435,11 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     });
     return () => {
       disposed = true;
-      mapRef.current?.remove();
-      mapRef.current = null;
+      if (mountedMap !== null && radarStyleLoadHandler !== null) {
+        mountedMap.off('style.load', radarStyleLoadHandler);
+      }
+      mountedMap?.remove();
+      if (mapRef.current === mountedMap) mapRef.current = null;
     };
   }, [enabled]);
 

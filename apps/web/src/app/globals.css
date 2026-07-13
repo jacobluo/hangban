@@ -1849,14 +1849,16 @@ select:focus-visible {
   .map-tools button:nth-child(n + 3) {
     display: none;
   }
-  .weather-radar-legend,
-  .weather-radar-legend--playback-active {
+  .weather-radar-legend {
     top: 84px;
     right: 78px;
     bottom: auto;
     left: 12px;
     width: auto;
     max-width: 228px;
+  }
+  .weather-radar-legend--playback-active {
+    top: 72px;
   }
   .filter-summary,
   .map-message {
