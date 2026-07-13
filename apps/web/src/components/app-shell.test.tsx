@@ -49,6 +49,7 @@ describe('AppShell', () => {
     weatherRadarState.tileTemplate = null;
     weatherRadarState.loading = false;
     weatherRadarState.error = null;
+    weatherRadarState.retry.mockReset();
     useWeatherRadarMock.mockImplementation(() => weatherRadarState);
   });
 
@@ -64,12 +65,27 @@ describe('AppShell', () => {
 
   it('turns weather radar intent off after a non-fatal weather failure', async () => {
     weatherRadarState.error = '天气雷达暂时不可用';
+    const user = userEvent.setup();
 
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
+    await user.click(screen.getByRole('checkbox', { name: '天气雷达' }));
     expect(await screen.findByText('天气雷达暂时不可用，航班数据不受影响。')).toBeVisible();
     expect(useWeatherRadarMock).toHaveBeenLastCalledWith(false);
     expect(screen.getByLabelText('实时航班地图')).toBeVisible();
+  });
+
+  it('keeps a status-page-only weather failure out of the map notice', async () => {
+    weatherRadarState.error = '天气雷达暂时不可用';
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    expect(screen.getByRole('region', { name: '天气数据' })).toHaveTextContent('检查失败');
+    await user.click(screen.getByRole('button', { name: '返回地图' }));
+
+    expect(screen.queryByText('天气雷达暂时不可用，航班数据不受影响。')).not.toBeInTheDocument();
   });
 
   it('exposes the live map and freshness status as primary application landmarks', () => {
@@ -211,6 +227,27 @@ describe('AppShell', () => {
     expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
     expect(screen.getByRole('heading', { name: 'CA981' })).toBeVisible();
     expect(statusTrigger).toHaveFocus();
+  });
+
+  it('checks weather when status page opens without enabling the map layer', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(false);
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(true);
+    expect(flightMapProps.current).toMatchObject({ weatherRadar: null });
+  });
+
+  it('retries weather from the data status page', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，部分覆盖' }));
+    await user.click(screen.getByRole('button', { name: '重新获取数据' }));
+
+    expect(weatherRadarState.retry).toHaveBeenCalledTimes(1);
   });
 
   it('returns from the full-page source health view with Escape', async () => {

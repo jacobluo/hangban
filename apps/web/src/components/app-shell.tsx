@@ -59,7 +59,8 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
   const [mapLayers, setMapLayers] = useState<MapLayers>(defaultMapLayers);
   const [mapMessage, setMapMessage] = useState<string | null>(null);
   const [playbackMinutes, setPlaybackMinutes] = useState(0);
-  const weatherRadar = useWeatherRadar(mapLayers.weatherRadar);
+  const weatherRadarRequested = mapLayers.weatherRadar || statusPageOpen;
+  const weatherRadar = useWeatherRadar(weatherRadarRequested);
   const mapRef = useRef<FlightMapHandle>(null);
   const airportChosenRef = useRef(false);
   const statusTriggerRef = useRef<HTMLElement | null>(null);
@@ -85,12 +86,11 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
   }, [mapEnabled, routeDestination, routeOrigin]);
 
   useEffect(() => {
+    if (!mapLayers.weatherRadar) return;
     if (weatherRadar.error === null && weatherRadar.status?.available !== false) return;
-    setMapLayers((current) =>
-      current.weatherRadar ? { ...current, weatherRadar: false } : current,
-    );
+    setMapLayers((current) => ({ ...current, weatherRadar: false }));
     setMapMessage('天气雷达暂时不可用，航班数据不受影响。');
-  }, [weatherRadar.error, weatherRadar.status]);
+  }, [mapLayers.weatherRadar, weatherRadar.error, weatherRadar.status]);
 
   const placeholder =
     view === 'airports'
@@ -250,8 +250,12 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
           connectionState={connectionState}
           flightCount={flights.length}
           lastUpdatedAt={lastUpdatedAt}
+          weatherRadarStatus={weatherRadar.status}
+          weatherRadarLoading={weatherRadar.loading}
+          weatherRadarError={weatherRadar.error}
           onBack={closeStatusPage}
           onRetry={retry}
+          onRetryWeather={weatherRadar.retry}
         />
       ) : (
         <section

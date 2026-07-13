@@ -1,17 +1,22 @@
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
-import type { SourceStatus } from '@hangban/contracts';
+import type { SourceStatus, WeatherRadarStatus } from '@hangban/contracts';
 
 import type { RealtimeConnectionState } from '../lib/use-realtime-flights';
+import { WeatherDataStatus } from './weather-data-status';
 
 type Props = {
   statuses: SourceStatus[];
   connectionState: RealtimeConnectionState;
   flightCount: number;
   lastUpdatedAt: string | null;
+  weatherRadarStatus: WeatherRadarStatus | null;
+  weatherRadarLoading: boolean;
+  weatherRadarError: string | null;
   onBack: () => void;
   onRetry: () => void;
+  onRetryWeather: () => void;
 };
 
 const providerNames: Record<string, string> = {
@@ -57,8 +62,12 @@ export function DataStatusPage({
   connectionState,
   flightCount,
   lastUpdatedAt,
+  weatherRadarStatus,
+  weatherRadarLoading,
+  weatherRadarError,
   onBack,
   onRetry,
+  onRetryWeather,
 }: Props) {
   const backButtonRef = useRef<HTMLButtonElement>(null);
   const healthyCount = statuses.filter((status) => status.state === 'healthy').length;
@@ -66,6 +75,10 @@ export function DataStatusPage({
     .flatMap((status) => (status.lastSuccessAt === null ? [] : [status.lastSuccessAt]))
     .sort()
     .at(-1);
+  const retryAll = () => {
+    onRetry();
+    onRetryWeather();
+  };
 
   useEffect(() => {
     backButtonRef.current?.focus();
@@ -165,6 +178,11 @@ export function DataStatusPage({
                 ))
               )}
             </div>
+            <WeatherDataStatus
+              status={weatherRadarStatus}
+              loading={weatherRadarLoading}
+              error={weatherRadarError}
+            />
           </section>
 
           <aside className="coverage-summary" aria-labelledby="coverage-boundary-title">
@@ -188,7 +206,12 @@ export function DataStatusPage({
             <p className="status-disclaimer">
               实时位置可能存在延迟、遗漏或误差，不用于飞行安全、空管或机场运行决策。
             </p>
-            <button className="primary-button retry-button" type="button" onClick={onRetry}>
+            <button
+              className="primary-button retry-button"
+              type="button"
+              aria-busy={weatherRadarLoading}
+              onClick={retryAll}
+            >
               <RefreshCw size={15} /> 重新获取数据
             </button>
           </aside>

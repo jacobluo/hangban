@@ -1462,6 +1462,92 @@ select:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px 16px;
 }
+.weather-data-status {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+}
+.weather-status-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.weather-status-heading h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.weather-status-heading div > span {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-muted);
+  font-size: 10px;
+}
+.weather-status-badge {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  font-size: 10px;
+}
+.weather-status-badge.healthy {
+  background: #e8f5ec;
+  color: var(--success);
+}
+.weather-status-badge.delayed {
+  background: #fff4d6;
+  color: var(--warning);
+}
+.weather-status-badge.down {
+  background: #fdecec;
+  color: var(--critical);
+}
+.weather-status-provider {
+  margin: 14px 0 10px;
+  color: var(--ink-muted);
+  font-size: 10px;
+}
+.weather-status-provider strong {
+  margin-left: 5px;
+  color: var(--ink);
+  font-size: 12px;
+}
+.weather-status-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+}
+.weather-status-details dt {
+  color: var(--ink-muted);
+  font-size: 9px;
+}
+.weather-status-details dd {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.weather-status-note {
+  margin: 10px 0 0;
+  color: var(--ink-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.weather-status-attribution {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8px;
+  color: var(--action);
+  font-size: 10px;
+  text-decoration: none;
+}
+.weather-status-attribution:hover {
+  text-decoration: underline;
+}
 .coverage-summary {
   min-height: 100%;
   padding: 20px;
@@ -2105,6 +2191,16 @@ select:focus-visible {
   }
   .data-status-page .provider-details {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .weather-data-status {
+    padding: 14px;
+  }
+  .weather-status-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .weather-status-attribution {
+    min-height: 44px;
+    margin-top: 4px;
   }
   .data-status-page .provider-details > div:last-child {
     grid-column: auto;
