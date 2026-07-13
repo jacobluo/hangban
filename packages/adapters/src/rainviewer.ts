@@ -159,7 +159,7 @@ export function createRainViewerProvider({
       }
       let payload: unknown;
       try {
-        payload = await (await request(`${normalizedBaseUrl}/weather-maps.json`)).json();
+        payload = await (await request(`${normalizedBaseUrl}/public/weather-maps.json`)).json();
       } catch (error) {
         if (error instanceof WeatherRadarProviderError) throw error;
         if (error instanceof SyntaxError) {

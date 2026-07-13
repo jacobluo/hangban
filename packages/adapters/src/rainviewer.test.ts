@@ -43,7 +43,7 @@ describe('RainViewer provider', () => {
       upstreamPath: '/v2/radar/newest',
     });
     expect(fetchImpl).toHaveBeenCalledWith(
-      'https://api.rainviewer.com/weather-maps.json',
+      'https://api.rainviewer.com/public/weather-maps.json',
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });

@@ -7,7 +7,7 @@ import { loadConfig } from './index';
 describe('loadConfig', () => {
   it('loads bounded weather radar defaults', () => {
     expect(loadConfig({})).toMatchObject({
-      weatherRadarEnabled: false,
+      weatherRadarEnabled: true,
       rainViewerBaseUrl: 'https://api.rainviewer.com',
       weatherRadarTimeoutMs: 8_000,
       weatherRadarCacheTtlMs: 86_400_000,
@@ -15,6 +15,10 @@ describe('loadConfig', () => {
       weatherRadarCacheMaxBytes: 134_217_728,
       weatherRadarMaxZoom: 7,
     });
+  });
+
+  it('allows operators to disable the weather radar service explicitly', () => {
+    expect(loadConfig({ WEATHER_RADAR_ENABLED: 'false' }).weatherRadarEnabled).toBe(false);
   });
 
   it('rejects unsafe weather radar limits', () => {

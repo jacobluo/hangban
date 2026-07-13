@@ -271,7 +271,7 @@ WEATHER_RADAR_MAX_ZOOM: z.coerce.number().int().min(0).max(7).default(7),
 在 `RuntimeConfig` 和 `loadConfig()` 返回值中增加对应 camelCase 字段。`.env.example` 增加：
 
 ```dotenv
-WEATHER_RADAR_ENABLED=false
+WEATHER_RADAR_ENABLED=true
 RAINVIEWER_BASE_URL=https://api.rainviewer.com
 WEATHER_RADAR_TIMEOUT_MS=8000
 WEATHER_RADAR_CACHE_TTL_MS=86400000

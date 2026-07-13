@@ -239,10 +239,11 @@ WEATHER_RADAR_MAX_ZOOM
 约束：
 
 - `WEATHER_RADAR_CACHE_TTL_MS` 默认值为 24 小时。
+- `WEATHER_RADAR_ENABLED` 默认值为 `true`，仅用于运维侧显式关闭服务端天气能力。
 - `WEATHER_RADAR_MAX_ZOOM` 不得超过 7。
 - `RAINVIEWER_BASE_URL` 只由服务端读取，并限制为 HTTPS URL。
 - 首期不需要 API Key。
-- 天气雷达与 `DATA_MODE=demo|live` 解耦，可以独立启用或关闭。
+- 天气雷达与 `DATA_MODE=demo|live` 解耦；服务端默认启用，前端地图图层仍默认关闭。
 
 ## 10. 故障处理
 

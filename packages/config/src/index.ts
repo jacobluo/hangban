@@ -36,7 +36,7 @@ const configSchema = z.object({
   PROVIDER_CACHE_TTL_MS: z.coerce.number().int().positive().default(30_000),
   WEATHER_RADAR_ENABLED: z
     .enum(['true', 'false'])
-    .default('false')
+    .default('true')
     .transform((value) => value === 'true'),
   RAINVIEWER_BASE_URL: z
     .string()

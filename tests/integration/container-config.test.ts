@@ -35,6 +35,9 @@ describe('complete container configuration', () => {
     expect(compose.services.migrate?.environment?.WEB_ORIGIN).toBe(
       '${WEB_ORIGIN:-http://localhost:${WEB_PORT:-3000}}',
     );
+    expect(compose.services.migrate?.environment?.WEATHER_RADAR_ENABLED).toBe(
+      '${WEATHER_RADAR_ENABLED:-true}',
+    );
     for (const name of ['ingestor', 'migrate'])
       expect(compose.services[name]?.ports).toBeUndefined();
   });
