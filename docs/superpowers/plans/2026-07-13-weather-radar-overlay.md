@@ -861,13 +861,15 @@ git commit -m "feat: proxy weather radar tiles"
 - Modify: `apps/web/src/lib/flight-filters.test.ts`
 - Modify: `apps/web/src/components/app-shell.tsx`
 - Modify: `apps/web/src/components/app-shell.test.tsx`
+- Modify: `apps/web/src/components/flight-map.tsx`（仅增加 Task 7 使用的 props seam）
+- Modify: `apps/web/src/components/layer-filter-panel.tsx`（仅增加 Task 7 使用的 props seam）
 
 **Interfaces:**
 
 - Consumes: `WeatherRadarStatus` 和 `GET /api/v1/weather/radar`。
 - Produces: `useWeatherRadar()`；`MapLayers.weatherRadar`；传给地图的 `WeatherRadarAvailableStatus | null`。
 
-- [ ] **Step 1: 写 hook 失败测试**
+- [x] **Step 1: 写 hook 失败测试**
 
 创建 `apps/web/src/lib/use-weather-radar.test.tsx`，覆盖：
 
@@ -893,13 +895,13 @@ it('does not fetch until enabled and exposes a resolved internal tile URL', asyn
 });
 ```
 
-- [ ] **Step 2: 运行 hook 测试并确认失败**
+- [x] **Step 2: 运行 hook 测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/lib/use-weather-radar.test.tsx`
 
 Expected: FAIL，提示找不到 hook。
 
-- [ ] **Step 3: 扩展 API client**
+- [x] **Step 3: 扩展 API client**
 
 在 `apps/web/src/lib/api-client.ts` 增加：
 
@@ -917,11 +919,13 @@ export async function fetchWeatherRadarStatus(
 }
 
 export function resolveApiUrl(path: string): string {
-  return new URL(path, `${apiBaseUrl}/`).toString();
+  return new URL(path, `${apiBaseUrl}/`).toString().replaceAll('%7B', '{').replaceAll('%7D', '}');
 }
 ```
 
-- [ ] **Step 4: 实现 hook**
+保留 MapLibre 瓦片模板中的 `{z}`、`{x}`、`{y}` 占位符，不使用 URL 编码后的形式。
+
+- [x] **Step 4: 实现 hook**
 
 `useWeatherRadar(enabled, dependencies?)` 返回：
 
@@ -938,7 +942,7 @@ type WeatherRadarState = {
 
 `enabled=false` 时取消请求并清空错误；`enabled=true` 时创建 `AbortController` 请求一次。`available=false` 映射为「天气雷达暂时不可用」。组件卸载或关闭图层时必须中止请求。
 
-- [ ] **Step 5: 扩展受控图层状态**
+- [x] **Step 5: 扩展受控图层状态**
 
 修改 `MapLayers`：
 
@@ -955,7 +959,7 @@ export type MapLayers = {
 
 `defaultMapLayers.weatherRadar` 固定为 `false`。更新筛选测试，确认重置后天气雷达关闭。
 
-- [ ] **Step 6: 在 AppShell 编排启停和错误回退**
+- [x] **Step 6: 在 AppShell 编排启停和错误回退**
 
 调用：
 
@@ -976,16 +980,16 @@ weatherRadarTileTemplate={weatherRadar.tileTemplate}
 weatherRadarLoading={weatherRadar.loading}
 ```
 
-- [ ] **Step 7: 运行前端状态测试**
+- [x] **Step 7: 运行前端状态测试**
 
 Run: `pnpm exec vitest run apps/web/src/lib/use-weather-radar.test.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/lib/flight-filters.test.ts && pnpm --filter @hangban/web typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 8: 提交前端状态**
+- [x] **Step 8: 提交前端状态**
 
 ```bash
-git add apps/web/src/lib/api-client.ts apps/web/src/lib/use-weather-radar.ts apps/web/src/lib/use-weather-radar.test.tsx apps/web/src/lib/map-settings.ts apps/web/src/lib/flight-filters.test.ts apps/web/src/components/app-shell.tsx apps/web/src/components/app-shell.test.tsx
+git add apps/web/src/lib/api-client.ts apps/web/src/lib/use-weather-radar.ts apps/web/src/lib/use-weather-radar.test.tsx apps/web/src/lib/map-settings.ts apps/web/src/lib/flight-filters.test.ts apps/web/src/components/app-shell.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/components/flight-map.tsx apps/web/src/components/layer-filter-panel.tsx
 git commit -m "feat: manage weather radar state"
 ```
 
