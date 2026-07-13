@@ -19,6 +19,7 @@ describe('loadConfig', () => {
 
   it('rejects unsafe weather radar limits', () => {
     expect(() => loadConfig({ WEATHER_RADAR_MAX_ZOOM: '8' })).toThrow();
+    expect(() => loadConfig({ WEATHER_RADAR_CACHE_TTL_MS: '86400001' })).toThrow();
     expect(() => loadConfig({ WEATHER_RADAR_CACHE_MAX_BYTES: '0' })).toThrow();
     expect(() => loadConfig({ RAINVIEWER_BASE_URL: 'http://example.test' })).toThrow();
   });

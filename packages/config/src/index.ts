@@ -44,7 +44,12 @@ const configSchema = z.object({
     .refine((value) => new URL(value).protocol === 'https:')
     .default('https://api.rainviewer.com'),
   WEATHER_RADAR_TIMEOUT_MS: z.coerce.number().int().positive().default(8_000),
-  WEATHER_RADAR_CACHE_TTL_MS: z.coerce.number().int().positive().default(86_400_000),
+  WEATHER_RADAR_CACHE_TTL_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(86_400_000)
+    .default(86_400_000),
   WEATHER_RADAR_CACHE_MAX_ENTRIES: z.coerce.number().int().positive().default(2_048),
   WEATHER_RADAR_CACHE_MAX_BYTES: z.coerce.number().int().positive().default(134_217_728),
   WEATHER_RADAR_MAX_ZOOM: z.coerce.number().int().min(0).max(7).default(7),
