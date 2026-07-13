@@ -594,6 +594,7 @@ Expected: FAIL，提示找不到缓存模块。
 type WeatherRadarCache = {
   setFrame(frame: WeatherRadarProviderFrame): void;
   getFrame(frameId: string): WeatherRadarProviderFrame | null;
+  remainingTtlMsForFrame(frameId: string): number | null;
   newestFrame(): WeatherRadarProviderFrame | null;
   setTile(key: string, bytes: Uint8Array): void;
   getTile(key: string): Uint8Array | null;
@@ -675,7 +676,12 @@ Expected: FAIL，提示找不到 `createWeatherRadarService`。
 ```ts
 export type WeatherRadarService = {
   status(): Promise<WeatherRadarStatus>;
-  tile(frameId: string, z: number, x: number, y: number): Promise<Uint8Array>;
+  tile(
+    frameId: string,
+    z: number,
+    x: number,
+    y: number,
+  ): Promise<{ bytes: Uint8Array; cacheMaxAgeSeconds: number }>;
   clear(): void;
 };
 
@@ -696,7 +702,7 @@ export function createDisabledWeatherRadarService(): WeatherRadarService;
 `/api/v1/weather/radar/tiles/${frame.frameId}/{z}/{x}/{y}.png`;
 ```
 
-边界使用半开区间：年龄 `< 15 分钟` 为 `latest`，`< 2 小时` 为 `delayed`，`<= 24 小时` 为 `historical-cache`，`> 24 小时` 为 `FRAME_EXPIRED`。`tile()` 先校验 `0 <= z <= maxZoom` 和 `0 <= x,y < 2 ** z`，再按 `${frameId}:${z}:${x}:${y}` 查询缓存；未命中时只允许使用缓存帧注册信息请求 provider。
+边界使用半开区间：年龄 `< 15 分钟` 为 `latest`，`< 2 小时` 为 `delayed`，`<= 24 小时` 为 `historical-cache`，`> 24 小时` 为 `FRAME_EXPIRED`。`tile()` 先校验 `0 <= z <= maxZoom` 和 `0 <= x,y < 2 ** z`，再按 `${frameId}:${z}:${x}:${y}` 查询缓存；未命中时只允许使用缓存帧注册信息请求 provider。成功结果同时返回 CDN 可复用秒数，其上限取 300 秒、帧缓存剩余 TTL 与距离帧时间 24 小时边界的剩余时长三者最小值。
 
 - [x] **Step 7: 覆盖主要失败路径**
 
@@ -767,7 +773,7 @@ it('returns cacheable PNG bytes', async () => {
   });
   expect(response.statusCode).toBe(200);
   expect(response.headers['content-type']).toContain('image/png');
-  expect(response.headers['cache-control']).toBe('public, max-age=300, stale-if-error=86400');
+  expect(response.headers['cache-control']).toBe('public, max-age=300, must-revalidate');
 });
 ```
 
@@ -795,9 +801,11 @@ const tileParametersSchema = z.object({
 ```ts
 reply
   .header('content-type', 'image/png')
-  .header('cache-control', 'public, max-age=300, stale-if-error=86400')
+  .header('cache-control', `public, max-age=${cacheMaxAgeSeconds}, must-revalidate`)
   .send(Buffer.from(bytes));
 ```
+
+`cacheMaxAgeSeconds` 由天气雷达模块根据服务端有效期计算；路由不解析 `frameId` 时间戳。不得使用 `stale-if-error`，避免 CDN 在帧或服务端缓存失效后继续复用瓦片。
 
 参数无效返回 `400 WEATHER_RADAR_REQUEST_INVALID`；未知或过期帧返回 `404 WEATHER_RADAR_FRAME_UNAVAILABLE`；上游不可用返回 `503 WEATHER_RADAR_UPSTREAM_UNAVAILABLE`。错误体不包含上游 URL、正文或堆栈。
 
@@ -1310,3 +1318,11 @@ Expected: 输出不含凭据的 JSON，包含 `providerId: "rainviewer"`、ISO `
 git add tests/e2e/weather-radar.spec.ts apps/api/src/smoke-weather-radar.ts apps/api/package.json package.json docs/AGENTS.md docs/product-design.md docs/architecture.md docs/superpowers/plans/2026-07-13-weather-radar-overlay.md
 git commit -m "test: verify weather radar overlay"
 ```
+
+#### 最终审查跟进：约束瓦片 CDN 缓存寿命
+
+- [x] 先增加 cache、service 和 route 失败测试，确认动态缓存寿命接口缺失。
+- [x] 实现帧缓存剩余 TTL 查询，并让 service 返回受 300 秒、缓存 TTL 和帧 24 小时寿命共同约束的 `cacheMaxAgeSeconds`。
+- [x] route 使用 `public, max-age=<dynamic>, must-revalidate`，错误响应不设置成功缓存头。
+- [x] 重新运行聚焦测试、天气雷达 E2E、完整门禁与格式检查。
+- [x] 提交最终审查修复。

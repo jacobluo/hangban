@@ -29,7 +29,10 @@ const AVAILABLE_STATUS: WeatherRadarStatus = {
 function radarService(overrides: Partial<WeatherRadarService> = {}): WeatherRadarService {
   return {
     status: async () => AVAILABLE_STATUS,
-    tile: async () => new Uint8Array([137, 80, 78, 71]),
+    tile: async () => ({
+      bytes: new Uint8Array([137, 80, 78, 71]),
+      cacheMaxAgeSeconds: 300,
+    }),
     clear: vi.fn(),
     ...overrides,
   };
@@ -70,7 +73,7 @@ describe('weather radar routes', () => {
     expect(response.body).not.toContain('tilecache.rainviewer.com');
   });
 
-  it('returns PNG bytes with a conservative revalidation policy', async () => {
+  it('returns PNG bytes with the service-bounded cache lifetime', async () => {
     const app = buildTestApp(radarService());
     apps.push(app);
 
@@ -82,6 +85,26 @@ describe('weather radar routes', () => {
     expect(response.statusCode).toBe(200);
     expect(response.rawPayload).toEqual(Buffer.from([137, 80, 78, 71]));
     expect(response.headers['content-type']).toContain('image/png');
+    expect(response.headers['cache-control']).toBe('public, max-age=300, must-revalidate');
+  });
+
+  it('uses a zero-second cache lifetime without stale reuse', async () => {
+    const app = buildTestApp(
+      radarService({
+        tile: async () => ({
+          bytes: new Uint8Array([137, 80, 78, 71]),
+          cacheMaxAgeSeconds: 0,
+        }),
+      }),
+    );
+    apps.push(app);
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/weather/radar/tiles/frame-1783929600/7/1/2.png',
+    });
+
+    expect(response.statusCode).toBe(200);
     expect(response.headers['cache-control']).toBe('public, max-age=0, must-revalidate');
   });
 
@@ -140,6 +163,7 @@ describe('weather radar routes', () => {
       message: '天气雷达帧不可用',
     });
     expect(response.body).not.toContain('secret');
+    expect(response.headers['cache-control']).toBeUndefined();
   });
 
   it('maps upstream tile failures to a stable unavailable error without leaking details', async () => {

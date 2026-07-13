@@ -54,10 +54,10 @@ export async function registerWeatherRadarRoutes(
 
     try {
       const { frameId, z, x, y } = parsed.data;
-      const bytes = await service.tile(frameId, z, x, y);
+      const { bytes, cacheMaxAgeSeconds } = await service.tile(frameId, z, x, y);
       return reply
         .header('content-type', 'image/png')
-        .header('cache-control', 'public, max-age=0, must-revalidate')
+        .header('cache-control', `public, max-age=${cacheMaxAgeSeconds}, must-revalidate`)
         .send(Buffer.from(bytes));
     } catch (error) {
       if (error instanceof WeatherRadarServiceError) {

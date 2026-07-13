@@ -113,6 +113,24 @@ describe('weather radar cache', () => {
     expect(cache.newestFrame()).toBeNull();
   });
 
+  it('reports the remaining frame TTL without extending it on read', () => {
+    let now = 1_000;
+    const cache = createWeatherRadarCache({
+      ttlMs: 120_000,
+      maxEntries: 2,
+      maxBytes: 4_096,
+      now: () => now,
+    });
+    cache.setFrame(frame('frame-1'));
+
+    expect(cache.remainingTtlMsForFrame('frame-1')).toBe(120_000);
+    now += 45_000;
+    expect(cache.getFrame('frame-1')).not.toBeNull();
+    expect(cache.remainingTtlMsForFrame('frame-1')).toBe(75_000);
+    now += 75_001;
+    expect(cache.remainingTtlMsForFrame('frame-1')).toBeNull();
+  });
+
   it('sets expired entry bytes back to zero', () => {
     let now = 0;
     const cache = createWeatherRadarCache({

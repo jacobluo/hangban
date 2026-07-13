@@ -24,6 +24,7 @@ type CacheEntry =
 export type WeatherRadarCache = {
   setFrame(frame: WeatherRadarProviderFrame): void;
   getFrame(frameId: string): WeatherRadarProviderFrame | null;
+  remainingTtlMsForFrame(frameId: string): number | null;
   newestFrame(): WeatherRadarProviderFrame | null;
   setTile(key: string, bytes: Uint8Array): void;
   getTile(key: string): Uint8Array | null;
@@ -136,6 +137,13 @@ export function createWeatherRadarCache({
       if (!entry || entry.kind !== 'frame') return null;
       touch(entry);
       return cloneFrame(entry.value);
+    },
+
+    remainingTtlMsForFrame(frameId) {
+      purgeExpired();
+      const entry = entries.get(frameKey(frameId));
+      if (!entry || entry.kind !== 'frame') return null;
+      return Math.max(0, ttlMs - (effectiveNow() - entry.storedAt));
     },
 
     newestFrame() {

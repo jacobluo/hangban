@@ -50,17 +50,19 @@ function validOptions({
   now = () => BASE_TIME,
   enabled = true,
   maxZoom = 7,
+  cacheTtlMs = DAY_MS,
 }: {
   provider: WeatherRadarProvider;
   now?: () => Date;
   enabled?: boolean;
   maxZoom?: number;
+  cacheTtlMs?: number;
 }) {
   return {
     enabled,
     provider,
     cache: createWeatherRadarCache({
-      ttlMs: DAY_MS,
+      ttlMs: cacheTtlMs,
       maxEntries: 32,
       maxBytes: 4_096,
       now: () => now().getTime(),
@@ -211,8 +213,8 @@ describe('weather radar service', () => {
       service.tile(status.frameId, 7, 1, 2),
       service.tile(status.frameId, 7, 1, 2),
     ]);
-    first[0] = 0;
-    second[1] = 0;
+    first.bytes[0] = 0;
+    second.bytes[1] = 0;
     const third = await service.tile(status.frameId, 7, 1, 2);
 
     expect(fetchTile).toHaveBeenCalledTimes(1);
@@ -222,7 +224,35 @@ describe('weather radar service', () => {
       1,
       2,
     );
-    expect(third).toEqual(new Uint8Array([137, 80, 78, 71]));
+    expect(third).toEqual({
+      bytes: new Uint8Array([137, 80, 78, 71]),
+      cacheMaxAgeSeconds: 300,
+    });
+  });
+
+  it('bounds the public tile cache age by the configured frame cache TTL', async () => {
+    const service = createWeatherRadarService(
+      validOptions({ provider: providerReturningFrame(), cacheTtlMs: 120_000 }),
+    );
+    const status = await service.status();
+    if (!status.available) throw new Error('expected an available frame');
+
+    await expect(service.tile(status.frameId, 0, 0, 0)).resolves.toMatchObject({
+      cacheMaxAgeSeconds: 120,
+    });
+  });
+
+  it('bounds the public tile cache age by the remaining 24-hour frame lifetime', async () => {
+    const nearExpiry = new Date(BASE_TIME.getTime() - DAY_MS + 61_000);
+    const service = createWeatherRadarService(
+      validOptions({ provider: providerReturningFrame(nearExpiry) }),
+    );
+    const status = await service.status();
+    if (!status.available) throw new Error('expected an available frame');
+
+    await expect(service.tile(status.frameId, 0, 0, 0)).resolves.toMatchObject({
+      cacheMaxAgeSeconds: 61,
+    });
   });
 
   it('does not let an old tile finally delete a newer same-key request after clear', async () => {
@@ -250,14 +280,17 @@ describe('weather radar service', () => {
     const secondRequest = service.tile(secondStatus.frameId, 7, 1, 2);
 
     firstTile.resolve({ bytes: new Uint8Array([1]), contentType: 'image/png' });
-    await expect(firstRequest).resolves.toEqual(new Uint8Array([1]));
+    await expect(firstRequest).resolves.toEqual({
+      bytes: new Uint8Array([1]),
+      cacheMaxAgeSeconds: 0,
+    });
     const thirdRequest = service.tile(secondStatus.frameId, 7, 1, 2);
     expect(fetchTile).toHaveBeenCalledTimes(2);
 
     secondTile.resolve({ bytes: new Uint8Array([2]), contentType: 'image/png' });
     await expect(Promise.all([secondRequest, thirdRequest])).resolves.toEqual([
-      new Uint8Array([2]),
-      new Uint8Array([2]),
+      { bytes: new Uint8Array([2]), cacheMaxAgeSeconds: 300 },
+      { bytes: new Uint8Array([2]), cacheMaxAgeSeconds: 300 },
     ]);
     expect(fetchTile).toHaveBeenCalledTimes(2);
   });
