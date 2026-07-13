@@ -26,6 +26,7 @@
 - [`superpowers/specs/2026-07-13-weather-data-status-design.md`](superpowers/specs/2026-07-13-weather-data-status-design.md)：状态页主动检查天气数据、独立新鲜度状态和航班健康统计边界设计。
 - [`superpowers/plans/2026-07-13-weather-data-status.md`](superpowers/plans/2026-07-13-weather-data-status.md)：Ardot 状态页更新、天气数据卡片、主动检查、响应式回归和验证步骤。
 - [`superpowers/specs/2026-07-13-browser-local-time-design.md`](superpowers/specs/2026-07-13-browser-local-time-design.md)：UTC 数据边界、浏览器时区格式、hydration 处理和时间展示验收规则。
+- [`superpowers/plans/2026-07-13-browser-local-time.md`](superpowers/plans/2026-07-13-browser-local-time.md)：Ardot 同步、统一时间组件、业务替换、双视口核对和验证步骤。
 
 ## 状态说明
 
