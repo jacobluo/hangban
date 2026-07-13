@@ -24,6 +24,7 @@
 - [`superpowers/plans/2026-07-13-desktop-data-status-page.md`](superpowers/plans/2026-07-13-desktop-data-status-page.md)：桌面数据状态整页、手机全高页面、响应式回归和视觉验收的实施步骤。
 - [`superpowers/specs/2026-07-13-weather-radar-overlay-design.md`](superpowers/specs/2026-07-13-weather-radar-overlay-design.md)：RainViewer 天气雷达图层、24 小时短期缓存、代理安全和降级语义设计。
 - [`superpowers/specs/2026-07-13-weather-data-status-design.md`](superpowers/specs/2026-07-13-weather-data-status-design.md)：状态页主动检查天气数据、独立新鲜度状态和航班健康统计边界设计。
+- [`superpowers/plans/2026-07-13-weather-data-status.md`](superpowers/plans/2026-07-13-weather-data-status.md)：Ardot 状态页更新、天气数据卡片、主动检查、响应式回归和验证步骤。
 
 ## 状态说明
 
