@@ -5,6 +5,7 @@ import { parse } from 'yaml';
 type Service = {
   profiles?: string[];
   depends_on?: Record<string, { condition?: string }>;
+  environment?: Record<string, string>;
   ports?: string[];
   user?: string;
 };
@@ -30,6 +31,9 @@ describe('complete container configuration', () => {
     );
     expect(compose.services.ingestor?.depends_on?.migrate?.condition).toBe(
       'service_completed_successfully',
+    );
+    expect(compose.services.migrate?.environment?.WEB_ORIGIN).toBe(
+      '${WEB_ORIGIN:-http://localhost:${WEB_PORT:-3000}}',
     );
     for (const name of ['ingestor', 'migrate'])
       expect(compose.services[name]?.ports).toBeUndefined();
