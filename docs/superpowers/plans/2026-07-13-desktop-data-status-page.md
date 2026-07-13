@@ -40,7 +40,7 @@
 - Consumes: `AppShell({ initialData, mapEnabled })`。
 - Produces: 独立页面容器 `aria-label="数据覆盖与服务状态"`、返回操作 `aria-label="返回地图"`。
 
-- [ ] **Step 1: 修改组件测试，表达独立页面行为**
+- [x] **Step 1: 修改组件测试，表达独立页面行为**
 
 将旧的 `role="dialog"` 断言替换为以下用户行为：
 
@@ -56,7 +56,7 @@ expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisib
 
 增加 `Escape` 返回断言，并在打开状态页前选择 `CA981`，返回后断言 `CA981` 摘要仍存在。
 
-- [ ] **Step 2: 运行组件测试，确认因旧侧栏实现失败**
+- [x] **Step 2: 运行组件测试，确认因旧侧栏实现失败**
 
 Run:
 
@@ -66,7 +66,7 @@ pnpm test:unit apps/web/src/components/app-shell.test.tsx
 
 Expected: FAIL，无法找到独立 `region` 或地图仍可见。
 
-- [ ] **Step 3: 修改 E2E 断言，表达响应式验收标准**
+- [x] **Step 3: 修改 E2E 断言，表达响应式验收标准**
 
 打开实时状态后断言：
 
@@ -78,7 +78,7 @@ await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeH
 
 PC 断言状态页宽度等于视口宽度，手机断言 `scrollWidth <= clientWidth`；关闭后继续执行现有筛选和航班详情流程，证明上下文未丢失。
 
-- [ ] **Step 4: 提交失败测试**
+- [x] **Step 4: 提交失败测试**
 
 ```bash
 git add apps/web/src/components/app-shell.test.tsx tests/e2e/ui-controls.spec.ts
@@ -99,7 +99,7 @@ git commit -m "test: require full-page data status"
 - Consumes: `statuses: SourceStatus[]`、`connectionState: RealtimeConnectionState`、`flightCount: number`、`lastUpdatedAt: string | null`、`onBack(): void`、`onRetry(): void`。
 - Produces: `DataStatusPage` 独立页面组件；页面容器使用 `className="data-status-page"` 与 `aria-labelledby="data-status-title"`。
 
-- [ ] **Step 1: 创建页面组件**
+- [x] **Step 1: 创建页面组件**
 
 将当前状态计算和数据源详情迁移到 `DataStatusPage`，根结构为：
 
@@ -129,7 +129,7 @@ git commit -m "test: require full-page data status"
 
 组件挂载后聚焦返回按钮；监听 `Escape` 并调用 `onBack`。覆盖说明明确当前航班数仅反映当前已获得记录，不生成平均延迟或区域覆盖率。
 
-- [ ] **Step 2: 在 AppShell 中切换页面层级**
+- [x] **Step 2: 在 AppShell 中切换页面层级**
 
 将 `statusPanelOpen` 更名为 `statusPageOpen`。所有状态入口调用统一的 `openStatusPage()`，记录触发元素；打开时关闭筛选和完整航班详情。地图区域仅在状态页关闭时渲染：
 
@@ -143,7 +143,7 @@ git commit -m "test: require full-page data status"
 
 `closeStatusPage()` 关闭页面并在下一个动画帧恢复触发器焦点，不修改 `view`、`selectedFlight`、`filters`、`mapLayers` 或地图 ref。
 
-- [ ] **Step 3: 实现桌面和手机布局**
+- [x] **Step 3: 实现桌面和手机布局**
 
 新增样式：
 
@@ -169,7 +169,7 @@ git commit -m "test: require full-page data status"
 
 在 `max-width: 700px` 下使用 `inset: 0`、单列布局、`16 px` 横向间距和至少 `44 px` 的返回、重试按钮。删除 `.data-status-panel` 对通用 `.detail-panel` 的依赖。
 
-- [ ] **Step 4: 运行组件测试并修正实现**
+- [x] **Step 4: 运行组件测试并修正实现**
 
 Run:
 
@@ -179,7 +179,7 @@ pnpm test:unit apps/web/src/components/app-shell.test.tsx
 
 Expected: PASS，所有 `AppShell` 测试通过。
 
-- [ ] **Step 5: 运行类型和格式检查**
+- [x] **Step 5: 运行类型和格式检查**
 
 Run:
 
@@ -190,7 +190,7 @@ pnpm exec prettier --check apps/web/src/components/data-status-page.tsx apps/web
 
 Expected: exit code `0`。
 
-- [ ] **Step 6: 提交实现**
+- [x] **Step 6: 提交实现**
 
 ```bash
 git add apps/web/src/components/data-status-page.tsx apps/web/src/components/data-status-panel.tsx apps/web/src/components/app-shell.tsx apps/web/src/app/globals.css
@@ -210,7 +210,7 @@ git commit -m "fix: render data status as full page"
 - Consumes: Playwright `desktop` 与 `mobile` projects。
 - Produces: 可复现的响应式回归断言和文档验收记录。
 
-- [ ] **Step 1: 运行相关 E2E**
+- [x] **Step 1: 运行相关 E2E**
 
 Run:
 
@@ -220,7 +220,7 @@ pnpm e2e tests/e2e/ui-controls.spec.ts
 
 Expected: desktop 与 mobile 均通过，状态页打开、返回和后续流程正常。
 
-- [ ] **Step 2: 在 `1440 × 900` 与 `390 × 844` 核对页面**
+- [x] **Step 2: 在 `1440 × 900` 与 `390 × 844` 核对页面**
 
 保存检查截图到忽略目录 `.ardot-qa/data-status-page/`，检查：
 
@@ -229,11 +229,11 @@ Expected: desktop 与 mobile 均通过，状态页打开、返回和后续流程
 - 手机状态页占满视口、可纵向滚动、无水平溢出。
 - 返回操作和重试操作在手机端不小于 `44 × 44 px`。
 
-- [ ] **Step 3: 更新产品设计记录**
+- [x] **Step 3: 更新产品设计记录**
 
 在 `docs/product-design.md` 记录实现视口、Ardot 节点、有意不复刻的示意指标和截图路径。
 
-- [ ] **Step 4: 运行完整门禁**
+- [x] **Step 4: 运行完整门禁**
 
 Run:
 
@@ -244,7 +244,7 @@ pnpm format:check
 
 Expected: lint、typecheck、unit、integration、build、E2E 和格式检查全部通过。
 
-- [ ] **Step 5: 完成交付审计并提交**
+- [x] **Step 5: 完成交付审计并提交**
 
 逐项核对本计划、spec 和当前 Git diff；确认没有 `.env.example`、`.pnpm-store/` 或 `.ardot-qa/` 文件进入暂存区。
 
