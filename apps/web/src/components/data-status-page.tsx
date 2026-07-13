@@ -45,6 +45,7 @@ function overallLabel(
   healthyCount: number,
   sourceCount: number,
 ) {
+  if (sourceCount === 0) return '尚未获得来源状态';
   if (connectionState === 'loading') return '正在连接实时服务';
   if (connectionState === 'reconnecting') return '正在重新连接';
   if (connectionState !== 'online') return '实时连接已中断';
@@ -119,46 +120,50 @@ export function DataStatusPage({
           <section className="data-source-section" aria-labelledby="provider-status-title">
             <h2 id="provider-status-title">数据源</h2>
             <div className="provider-list">
-              {statuses.map((status) => (
-                <article className={`provider-row ${status.state}`} key={status.providerId}>
-                  <span className={`status-dot ${status.state === 'healthy' ? '' : 'delayed'}`} />
-                  <div>
-                    <strong>{providerNames[status.providerId] ?? status.providerId}</strong>
-                    <span>{stateLabels[status.state]}</span>
-                    <dl className="provider-details">
-                      <div>
-                        <dt>最近结果</dt>
-                        <dd>{stateLabels[status.state]}</dd>
-                      </div>
-                      <div>
-                        <dt>最后成功时间</dt>
-                        <dd>{utcTime(status.lastSuccessAt)}</dd>
-                      </div>
-                      <div>
-                        <dt>记录数</dt>
-                        <dd>{status.lastRecordCount ?? '未获得'}</dd>
-                      </div>
-                      <div>
-                        <dt>错误类型</dt>
-                        <dd>
-                          {status.errorCode === undefined ? '无' : errorLabels[status.errorCode]}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>结果语义</dt>
-                        <dd>
-                          {status.state === 'healthy'
-                            ? '使用当前结果'
-                            : status.lastSuccessAt === null
-                              ? '无可用缓存'
-                              : '最近成功结果仅供降级参考'}
-                        </dd>
-                      </div>
-                    </dl>
-                    {status.message === undefined ? null : <em>{status.message}</em>}
-                  </div>
-                </article>
-              ))}
+              {statuses.length === 0 ? (
+                <p className="empty-copy">尚未获得数据源状态</p>
+              ) : (
+                statuses.map((status) => (
+                  <article className={`provider-row ${status.state}`} key={status.providerId}>
+                    <span className={`status-dot ${status.state === 'healthy' ? '' : 'delayed'}`} />
+                    <div>
+                      <strong>{providerNames[status.providerId] ?? status.providerId}</strong>
+                      <span>{stateLabels[status.state]}</span>
+                      <dl className="provider-details">
+                        <div>
+                          <dt>最近结果</dt>
+                          <dd>{stateLabels[status.state]}</dd>
+                        </div>
+                        <div>
+                          <dt>最后成功时间</dt>
+                          <dd>{utcTime(status.lastSuccessAt)}</dd>
+                        </div>
+                        <div>
+                          <dt>记录数</dt>
+                          <dd>{status.lastRecordCount ?? '未获得'}</dd>
+                        </div>
+                        <div>
+                          <dt>错误类型</dt>
+                          <dd>
+                            {status.errorCode === undefined ? '无' : errorLabels[status.errorCode]}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>结果语义</dt>
+                          <dd>
+                            {status.state === 'healthy'
+                              ? '使用当前结果'
+                              : status.lastSuccessAt === null
+                                ? '无可用缓存'
+                                : '最近成功结果仅供降级参考'}
+                          </dd>
+                        </div>
+                      </dl>
+                      {status.message === undefined ? null : <em>{status.message}</em>}
+                    </div>
+                  </article>
+                ))
+              )}
             </div>
           </section>
 

@@ -168,6 +168,17 @@ describe('AppShell', () => {
     expect(screen.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
   });
 
+  it('does not report all services healthy before source status is available', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={{ ...demoData, sourceStatuses: [] }} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '实时位置，等待来源状态' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('尚未获得来源状态');
+    expect(screen.getByText('尚未获得数据源状态')).toBeVisible();
+    expect(screen.queryByText('全部服务正常')).not.toBeInTheDocument();
+  });
+
   it('keeps static map context available when every realtime source is unavailable', () => {
     const unavailableData = {
       ...demoData,

@@ -266,7 +266,10 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             onFlightSelect={chooseFlight}
             onAirportSelect={chooseAirport}
             placeholder={placeholder}
-            statusDegraded={sourceStatuses.some((status) => status.state !== 'healthy')}
+            statusDegraded={
+              sourceStatuses.length === 0 ||
+              sourceStatuses.some((status) => status.state !== 'healthy')
+            }
             onStatusOpen={openStatusPage}
           />
           <MapControls

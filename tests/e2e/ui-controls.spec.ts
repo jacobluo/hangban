@@ -1,5 +1,51 @@
 import { expect, test } from '@playwright/test';
 
+test('data status uses a full responsive page and returns to the map', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/');
+
+  if (testInfo.project.name === 'mobile') {
+    await page.getByRole('button', { name: /实时位置.*打开数据状态/ }).click();
+  } else {
+    await page.getByRole('button', { name: /实时位置/ }).click();
+  }
+
+  const statusPage = page.getByRole('region', { name: '数据覆盖与服务状态' });
+  const viewportWidth = testInfo.project.name === 'mobile' ? 390 : 1440;
+  await expect(statusPage).toBeVisible();
+  await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeHidden();
+  await expect(page.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
+  await expect
+    .poll(async () => Math.round((await statusPage.boundingBox())?.width ?? 0))
+    .toBe(viewportWidth);
+  await expect
+    .poll(() =>
+      statusPage.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      })),
+    )
+    .toEqual({ clientWidth: viewportWidth, scrollWidth: viewportWidth });
+
+  const backButton = page.getByRole('button', { name: '返回地图' });
+  await expect(backButton).toBeFocused();
+  if (testInfo.project.name === 'mobile') {
+    const box = await backButton.boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+  if (process.env.CAPTURE_DATA_STATUS_QA === '1') {
+    await page.screenshot({
+      path: `.ardot-qa/data-status-page/implementation-${testInfo.project.name}.png`,
+      fullPage: true,
+    });
+  }
+  await backButton.click();
+
+  await expect(statusPage).toBeHidden();
+  await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeVisible();
+});
+
 test('map controls, filters, source status and complete details change real UI state', async ({
   page,
 }, testInfo) => {
