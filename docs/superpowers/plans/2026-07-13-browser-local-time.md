@@ -193,3 +193,13 @@
 **步骤 3：推送当前分支**
 
 运行 `git push origin main`，确认远端包含规格、计划、Ardot 对应实现和测试。
+
+## 完成记录
+
+- [x] Ardot `main_deep` 中面向访客的 UTC / CST 示例已替换为浏览器本地时间示例，并完成桌面端、手机端视觉核对。
+- [x] 已按 TDD 新增统一格式化函数和 `BrowserTime` 组件，覆盖 SSR、hydration、无效输入与夏令时边界。
+- [x] 航班、航线、状态页、天气雷达和位置回看中的当前观测时间已统一改为浏览器时区展示。
+- [x] Playwright 固定使用 `Asia/Shanghai`，并覆盖 `GMT+8` 文案、原始 UTC 元数据和双视口流程。
+- [x] 实现截图已保存到 `.ardot-qa/browser-local-time/implementation-desktop.png` 和 `.ardot-qa/browser-local-time/implementation-mobile.png`。
+- [x] `pnpm verify` 已在隔离 PostgreSQL / Redis 测试环境中通过：428 个单元与组件测试、9 个集成测试、27 个 E2E 测试通过，1 个 E2E 按项目配置跳过。
+- [x] `pnpm format:check`、`git diff --check` 和可见 UTC 时间源码审计已通过。

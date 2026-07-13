@@ -5,6 +5,7 @@ import type { Airport, Flight } from '@hangban/contracts';
 import { distanceKm, matchRouteFlights } from '@hangban/domain';
 
 import { AirportPicker } from './airport-picker';
+import { BrowserTime } from './browser-time';
 
 type Props = {
   airports: Airport[];
@@ -191,9 +192,13 @@ export function RouteExplorer({
           <span>基于公开航班信息和实时位置归并，不代表官方完整班次，也不承诺完整覆盖。</span>
         </div>
         <p className="mono route-observed-at">
-          {lastObservedAt === undefined
-            ? '更新时间未获得'
-            : `更新于 ${lastObservedAt.slice(11, 19)} UTC`}
+          {lastObservedAt === undefined ? (
+            '更新时间未获得'
+          ) : (
+            <>
+              更新于 <BrowserTime value={lastObservedAt} format="full" />
+            </>
+          )}
         </p>
         <div className="list-heading">
           <h3>当前在途航班</h3>

@@ -1,5 +1,7 @@
 import type { SourceStatus } from '@hangban/contracts';
 
+import { BrowserTime } from './browser-time';
+
 type Props = { statuses: SourceStatus[]; compact?: boolean; onOpen: () => void };
 
 export function DataStatus({ statuses, compact = false, onOpen }: Props) {
@@ -10,10 +12,6 @@ export function DataStatus({ statuses, compact = false, onOpen }: Props) {
     .flatMap((status) => (status.lastSuccessAt === null ? [] : [status.lastSuccessAt]))
     .sort()
     .at(-1);
-  const updatedAt =
-    latestSuccess === undefined
-      ? '更新时间未知'
-      : `${new Date(latestSuccess).toISOString().slice(11, 16)} UTC 更新`;
   return (
     <button
       type="button"
@@ -31,7 +29,13 @@ export function DataStatus({ statuses, compact = false, onOpen }: Props) {
       <strong>{statusUnavailable ? '等待状态' : degraded ? '部分覆盖' : '实时位置'}</strong>
       <span>
         {statusUnavailable ? '尚未获得来源状态' : `${healthy}/${statuses.length} 来源正常`} ·{' '}
-        {updatedAt}
+        {latestSuccess === undefined ? (
+          '更新时间未知'
+        ) : (
+          <>
+            <BrowserTime value={latestSuccess} /> 更新
+          </>
+        )}
       </span>
     </button>
   );

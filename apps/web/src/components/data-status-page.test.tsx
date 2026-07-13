@@ -2,7 +2,7 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { SourceStatus, WeatherRadarStatus } from '@hangban/contracts';
 
@@ -22,6 +22,16 @@ const unavailableWeather: WeatherRadarStatus = {
   providerId: 'rainviewer',
   reason: 'UPSTREAM_UNAVAILABLE',
 };
+
+const originalTimeZone = process.env.TZ;
+
+beforeAll(() => {
+  process.env.TZ = 'Asia/Shanghai';
+});
+
+afterAll(() => {
+  process.env.TZ = originalTimeZone;
+});
 
 describe('DataStatusPage', () => {
   it('keeps flight health healthy when optional weather is unavailable', () => {
@@ -68,5 +78,27 @@ describe('DataStatusPage', () => {
 
     expect(onRetry).toHaveBeenCalledTimes(1);
     expect(onRetryWeather).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows successful observations in the browser timezone with UTC metadata', async () => {
+    render(
+      <DataStatusPage
+        statuses={statuses}
+        connectionState="online"
+        flightCount={123}
+        lastUpdatedAt="2026-07-13T06:20:00.000Z"
+        weatherRadarStatus={null}
+        weatherRadarLoading={false}
+        weatherRadarError={null}
+        onBack={vi.fn()}
+        onRetry={vi.fn()}
+        onRetryWeather={vi.fn()}
+      />,
+    );
+
+    const times = await screen.findAllByText('2026/7/13 14:20:00 GMT+8');
+    expect(times).toHaveLength(2);
+    expect(times[0]).toHaveAttribute('dateTime', '2026-07-13T06:20:00.000Z');
+    expect(times[0]).toHaveAttribute('title', 'UTC：2026-07-13 06:20:00');
   });
 });

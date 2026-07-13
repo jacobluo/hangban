@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { SourceStatus, WeatherRadarStatus } from '@hangban/contracts';
 
 import type { RealtimeConnectionState } from '../lib/use-realtime-flights';
+import { BrowserTime } from './browser-time';
 import { WeatherDataStatus } from './weather-data-status';
 
 type Props = {
@@ -39,11 +40,6 @@ const errorLabels: Record<NonNullable<SourceStatus['errorCode']>, string> = {
   INVALID_RESPONSE: '响应格式异常',
   UPSTREAM_ERROR: '上游服务异常',
 };
-
-function utcTime(value: string | null) {
-  if (value === null) return '尚无成功记录';
-  return `${value.slice(11, 19)} UTC`;
-}
 
 function overallLabel(
   connectionState: RealtimeConnectionState,
@@ -124,7 +120,13 @@ export function DataStatusPage({
             <span>当前已获得航班</span>
           </div>
           <div>
-            <strong>{utcTime(lastSuccessAt ?? lastUpdatedAt)}</strong>
+            <strong>
+              <BrowserTime
+                value={lastSuccessAt ?? lastUpdatedAt}
+                format="full"
+                fallback="尚无成功记录"
+              />
+            </strong>
             <span>最后成功时间</span>
           </div>
         </div>
@@ -149,7 +151,13 @@ export function DataStatusPage({
                         </div>
                         <div>
                           <dt>最后成功时间</dt>
-                          <dd>{utcTime(status.lastSuccessAt)}</dd>
+                          <dd>
+                            <BrowserTime
+                              value={status.lastSuccessAt}
+                              format="full"
+                              fallback="尚无成功记录"
+                            />
+                          </dd>
                         </div>
                         <div>
                           <dt>记录数</dt>

@@ -38,6 +38,8 @@ test('data status uses a full responsive page and returns to the map', async ({
   await expect(page.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
   const weatherStatus = page.getByRole('region', { name: '天气数据' });
   await expect(weatherStatus).toContainText('最新');
+  await expect(weatherStatus.locator('time')).toContainText(/GMT\+8$/);
+  await expect(weatherStatus.locator('time')).toHaveAttribute('datetime', /Z$/);
   await expect(
     weatherStatus.getByRole('link', { name: 'Weather radar by RainViewer' }),
   ).toBeVisible();
@@ -144,6 +146,9 @@ test('map controls, filters, source status and complete details change real UI s
   await page.getByRole('button', { name: '查看完整详情' }).click();
   await expect(page.getByRole('heading', { name: '实时飞行数据' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '补充资料' })).toBeVisible();
+  const detailTimes = page.getByRole('region', { name: '完整航班详情' }).locator('time');
+  await expect(detailTimes).toHaveCount(3);
+  await expect(detailTimes.first()).toContainText(/GMT\+8$/);
   await expect(page.getByText('演示数据趋势', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回地图' }).click();
   await expect(page.getByRole('heading', { name: 'CA981' })).toBeVisible();
@@ -151,6 +156,7 @@ test('map controls, filters, source status and complete details change real UI s
   if (testInfo.project.name === 'desktop') {
     await page.getByRole('slider', { name: '航迹回看时间' }).fill('15');
     await expect(page.getByText('15 分钟前')).toBeVisible();
+    await expect(page.getByLabel('短时航迹回看').locator('time')).toContainText(/GMT\+8$/);
     await page.getByRole('button', { name: '返回实时位置' }).click();
     await expect(page.getByText('实时位置')).toBeVisible();
   }

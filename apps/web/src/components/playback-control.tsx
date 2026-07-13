@@ -1,16 +1,18 @@
 import { Radio } from 'lucide-react';
 
+import { BrowserTime } from './browser-time';
+
 type Props = {
   minutes: number;
   lastUpdatedAt: string | null;
   onChange: (minutes: number) => void;
 };
 
-function displayTime(lastUpdatedAt: string | null, minutes: number) {
-  if (lastUpdatedAt === null) return '尚无观测时间';
-  const value = new Date(lastUpdatedAt);
-  value.setMinutes(value.getMinutes() - minutes);
-  return `${value.toISOString().slice(11, 19)} UTC`;
+function playbackTime(lastUpdatedAt: string | null, minutes: number) {
+  if (lastUpdatedAt === null) return null;
+  const timestamp = Date.parse(lastUpdatedAt);
+  if (!Number.isFinite(timestamp)) return null;
+  return new Date(timestamp - minutes * 60_000).toISOString();
 }
 
 export function PlaybackControl({ minutes, lastUpdatedAt, onChange }: Props) {
@@ -27,7 +29,7 @@ export function PlaybackControl({ minutes, lastUpdatedAt, onChange }: Props) {
         aria-label="航迹回看时间"
         onChange={(event) => onChange(Number(event.target.value))}
       />
-      <time>{displayTime(lastUpdatedAt, minutes)}</time>
+      <BrowserTime value={playbackTime(lastUpdatedAt, minutes)} fallback="尚无观测时间" />
       {minutes === 0 ? (
         <span className="live-playback-state">
           <Radio size={13} /> 实时

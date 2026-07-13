@@ -3,6 +3,8 @@ import { useState } from 'react';
 
 import type { Flight } from '@hangban/contracts';
 
+import { BrowserTime } from './browser-time';
+
 type Props = { flight: Flight; onClose: () => void; onOpenDetails: () => void };
 
 function metric(value: number | null, unit: string) {
@@ -52,7 +54,9 @@ export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
           <span>出发地</span>
         </div>
         <div className="route-progress">
-          <span>{flight.observedAt.slice(11, 16)} UTC</span>
+          <span>
+            <BrowserTime value={flight.observedAt} />
+          </span>
           <i />
         </div>
         <div>

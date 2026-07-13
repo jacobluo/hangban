@@ -2,11 +2,21 @@
 
 import { render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WeatherRadarAvailableStatus } from '@hangban/contracts';
 
 import { WeatherRadarLegend } from './weather-radar-legend';
+
+const originalTimeZone = process.env.TZ;
+
+beforeAll(() => {
+  process.env.TZ = 'Asia/Shanghai';
+});
+
+afterAll(() => {
+  process.env.TZ = originalTimeZone;
+});
 
 function radar(freshness: WeatherRadarAvailableStatus['freshness']) {
   return {
@@ -47,14 +57,16 @@ describe('WeatherRadarLegend', () => {
     );
   });
 
-  it('shows latest and delayed frame time and raises the legend during playback', () => {
+  it('shows latest and delayed frame time and raises the legend during playback', async () => {
     const { rerender } = render(
       <WeatherRadarLegend radar={radar('latest')} playbackActive={false} />,
     );
-    expect(screen.getByText(/最新 · 16:00/)).toBeVisible();
+    const latestTime = screen.getByText('16:00 GMT+8');
+    expect(latestTime.parentElement).toHaveTextContent('最新 · 16:00 GMT+8');
 
     rerender(<WeatherRadarLegend radar={radar('delayed')} playbackActive />);
-    expect(screen.getByText(/数据延迟 · 16:00/)).toBeVisible();
+    const delayedTime = screen.getByText('16:00 GMT+8');
+    expect(delayedTime.parentElement).toHaveTextContent('数据延迟 · 16:00 GMT+8');
     expect(screen.getByLabelText('天气雷达图例')).toHaveClass(
       'weather-radar-legend--playback-active',
     );

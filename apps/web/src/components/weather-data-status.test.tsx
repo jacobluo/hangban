@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import type { WeatherRadarStatus } from '@hangban/contracts';
 
@@ -20,19 +20,31 @@ const availableRadar: WeatherRadarStatus = {
   },
 };
 
+const originalTimeZone = process.env.TZ;
+
+beforeAll(() => {
+  process.env.TZ = 'Asia/Shanghai';
+});
+
+afterAll(() => {
+  process.env.TZ = originalTimeZone;
+});
+
 describe('WeatherDataStatus', () => {
   it.each([
     ['latest', '最新'],
     ['delayed', '数据延迟'],
     ['historical-cache', '非当前天气'],
-  ] as const)('renders %s as %s', (freshness, label) => {
+  ] as const)('renders %s as %s', async (freshness, label) => {
     render(
       <WeatherDataStatus status={{ ...availableRadar, freshness }} loading={false} error={null} />,
     );
 
     expect(screen.getByRole('region', { name: '天气数据' })).toBeVisible();
     expect(screen.getByText(label)).toBeVisible();
-    expect(screen.getByText('2026/7/13 06:20:00 UTC')).toBeVisible();
+    const frameTime = await screen.findByText('2026/7/13 14:20:00 GMT+8');
+    expect(frameTime).toHaveAttribute('dateTime', '2026-07-13T06:20:00.000Z');
+    expect(frameTime).toHaveAttribute('title', 'UTC：2026-07-13 06:20:00');
     expect(screen.getByText(/不代表所有区域的精确观测时间/)).toBeVisible();
   });
 

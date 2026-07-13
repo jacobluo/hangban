@@ -1,28 +1,20 @@
 import type { WeatherRadarAvailableStatus } from '@hangban/contracts';
 
+import { BrowserTime } from './browser-time';
+
 type Props = {
   radar: WeatherRadarAvailableStatus;
   playbackActive: boolean;
 };
 
-const frameTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
 const SCALE_SEGMENTS = 5;
 
-function radarStatusText(radar: WeatherRadarAvailableStatus) {
-  if (radar.freshness === 'historical-cache') {
-    const ageHours = Math.max(
-      1,
-      Math.floor((Date.now() - new Date(radar.frameTime).getTime()) / (60 * 60_000)),
-    );
-    return `非当前天气 · ${ageHours} 小时前`;
-  }
-
-  const frameTime = frameTimeFormatter.format(new Date(radar.frameTime));
-  return radar.freshness === 'latest' ? `最新 · ${frameTime}` : `数据延迟 · ${frameTime}`;
+function historicalStatusText(radar: WeatherRadarAvailableStatus) {
+  const ageHours = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(radar.frameTime).getTime()) / (60 * 60_000)),
+  );
+  return `非当前天气 · ${ageHours} 小时前`;
 }
 
 export function WeatherRadarLegend({ radar, playbackActive }: Props) {
@@ -35,7 +27,16 @@ export function WeatherRadarLegend({ radar, playbackActive }: Props) {
     >
       <header>
         <strong>天气雷达</strong>
-        <span>{radarStatusText(radar)}</span>
+        <span>
+          {historical ? (
+            historicalStatusText(radar)
+          ) : (
+            <>
+              {radar.freshness === 'latest' ? '最新' : '数据延迟'} ·{' '}
+              <BrowserTime value={radar.frameTime} />
+            </>
+          )}
+        </span>
       </header>
       <div className="weather-radar-scale" aria-label="天气雷达强度，从弱到强">
         <div className="weather-radar-scale__bar" aria-hidden="true">

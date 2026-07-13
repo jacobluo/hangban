@@ -13,6 +13,15 @@ test('loads the live map and opens CA981 from search', async ({ page }, testInfo
 
   await expect(page.getByRole('heading', { name: 'CA981' })).toBeVisible();
   await expect(page.getByText('10,668 m')).toBeVisible();
+  const observationTime = page.getByLabel('航班详情').locator('time');
+  await expect(observationTime).toContainText(/GMT\+8$/);
+  await expect(observationTime).toHaveAttribute('datetime', /Z$/);
+  await expect(observationTime).toHaveAttribute('title', /^UTC：/);
+  if (process.env.CAPTURE_BROWSER_TIME_QA === '1') {
+    await page.screenshot({
+      path: `.ardot-qa/browser-local-time/implementation-${testInfo.project.name}.png`,
+    });
+  }
   if (testInfo.project.name === 'mobile') {
     await expect(
       page.getByRole('button', { name: '实时位置，部分覆盖，打开数据状态' }),

@@ -2,6 +2,8 @@ import { ArrowLeft, Plane } from 'lucide-react';
 
 import type { Airport, Flight } from '@hangban/contracts';
 
+import { BrowserTime } from './browser-time';
+
 type Props = {
   flight: Flight;
   airports: Airport[];
@@ -41,7 +43,9 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
             </small>
           </div>
           <div className="detail-update-state">
-            <span>更新于 {flight.observedAt.slice(11, 19)} UTC</span>
+            <span>
+              更新于 <BrowserTime value={flight.observedAt} format="full" />
+            </span>
             <strong className={`freshness-label ${flight.freshness}`}>
               {flight.freshness === 'live'
                 ? '实时'
@@ -59,7 +63,9 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
             <span>{origin?.city ?? '—'}</span>
           </div>
           <div className="full-route-progress">
-            <span>最后观测 {flight.observedAt.slice(11, 16)} UTC</span>
+            <span>
+              最后观测 <BrowserTime value={flight.observedAt} format="full" />
+            </span>
             <i>
               <b style={{ width: `${Math.round(flight.confidence * 100)}%` }} />
             </i>
@@ -105,7 +111,9 @@ export function FlightDetailsPage({ flight, airports, onBack }: Props) {
             <h2>航班事件</h2>
             <div className="event-list">
               <article className="current">
-                <strong>{flight.observedAt.slice(11, 19)} UTC · 当前观测</strong>
+                <strong>
+                  <BrowserTime value={flight.observedAt} format="full" /> · 当前观测
+                </strong>
                 <span>记录位置、高度与地速</span>
               </article>
               <article>

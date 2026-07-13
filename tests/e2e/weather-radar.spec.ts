@@ -61,6 +61,10 @@ test('weather radar is opt-in and keeps attribution visible', async ({ page }, t
 
   const legend = page.getByRole('region', { name: '天气雷达图例' });
   await expect(legend.getByText(/最新/)).toBeVisible();
+  const frameTime = legend.locator('time');
+  await expect(frameTime).toContainText(/GMT\+8$/);
+  await expect(frameTime).toHaveAttribute('datetime', /Z$/);
+  await expect(frameTime).toHaveAttribute('title', /^UTC：/);
   await expect(legend.getByRole('link', { name: 'Weather radar by RainViewer' })).toBeVisible();
   await expect(page.getByLabel('实时航班地图', { exact: true })).toBeVisible();
 

@@ -1,5 +1,7 @@
 import type { WeatherRadarStatus } from '@hangban/contracts';
 
+import { BrowserTime } from './browser-time';
+
 type Props = {
   status: WeatherRadarStatus | null;
   loading: boolean;
@@ -19,17 +21,6 @@ const freshnessCopy = {
   'historical-cache': ['非当前天气', '缓存帧仅供参考，不能作为当前天气判断'],
 } as const;
 
-const frameTimeFormatter = new Intl.DateTimeFormat('zh-CN', {
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false,
-  timeZone: 'UTC',
-});
-
 export function WeatherDataStatus({ status, loading, error }: Props) {
   const copy = loading
     ? ['正在检查', '正在获取天气雷达状态']
@@ -41,9 +32,11 @@ export function WeatherDataStatus({ status, loading, error }: Props) {
           ? ['尚未检查', '打开状态页后检查天气雷达状态']
           : ['检查失败', '天气雷达状态检查失败，可以重新获取数据'];
   const frameTime =
-    status?.available === true
-      ? `${frameTimeFormatter.format(new Date(status.frameTime))} UTC`
-      : '当前没有可用帧时间';
+    status?.available === true ? (
+      <BrowserTime value={status.frameTime} format="full" />
+    ) : (
+      '当前没有可用帧时间'
+    );
   const attribution =
     status?.available === true
       ? status.attribution
