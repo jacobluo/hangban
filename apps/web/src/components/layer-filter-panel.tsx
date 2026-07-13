@@ -49,6 +49,10 @@ export function LayerFilterPanel({
   );
   const resultCount = filterFlights(flights, draftFilters).length;
 
+  useEffect(() => {
+    setDraftLayers(layers);
+  }, [layers]);
+
   const applyFilters = (next: FlightFilters) => {
     setDraftFilters(next);
     onApply(next, draftLayers);

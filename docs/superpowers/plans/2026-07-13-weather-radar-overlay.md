@@ -122,7 +122,7 @@ git commit -m "docs: confirm weather radar visuals"
 - Consumes: 无。
 - Produces: `weatherRadarStatusSchema`、`WeatherRadarStatus`、`WeatherRadarAvailableStatus`、`WeatherRadarFreshness`，以及 `RuntimeConfig` 的天气雷达配置字段。
 
-- [ ] **Step 1: 写契约失败测试**
+- [x] **Step 1: 写契约失败测试**
 
 在 `packages/contracts/src/weather-radar.test.ts` 写入：
 
@@ -162,13 +162,13 @@ describe('weatherRadarStatusSchema', () => {
 });
 ```
 
-- [ ] **Step 2: 运行契约测试并确认失败**
+- [x] **Step 2: 运行契约测试并确认失败**
 
 Run: `pnpm exec vitest run packages/contracts/src/weather-radar.test.ts`
 
 Expected: FAIL，提示找不到 `./weather-radar`。
 
-- [ ] **Step 3: 实现统一契约**
+- [x] **Step 3: 实现统一契约**
 
 创建 `packages/contracts/src/weather-radar.ts`：
 
@@ -221,7 +221,7 @@ export type WeatherRadarStatus = z.infer<typeof weatherRadarStatusSchema>;
 export * from './weather-radar';
 ```
 
-- [ ] **Step 4: 写配置失败测试**
+- [x] **Step 4: 写配置失败测试**
 
 在 `packages/config/src/config.test.ts` 增加：
 
@@ -245,13 +245,13 @@ it('rejects unsafe weather radar limits', () => {
 });
 ```
 
-- [ ] **Step 5: 运行配置测试并确认失败**
+- [x] **Step 5: 运行配置测试并确认失败**
 
 Run: `pnpm exec vitest run packages/config/src/config.test.ts`
 
 Expected: FAIL，缺少天气雷达字段，且无效配置未被拒绝。
 
-- [ ] **Step 6: 实现配置并更新示例**
+- [x] **Step 6: 实现配置并更新示例**
 
 在 `packages/config/src/index.ts` 的 `configSchema` 增加：
 
@@ -280,13 +280,13 @@ WEATHER_RADAR_CACHE_MAX_BYTES=134217728
 WEATHER_RADAR_MAX_ZOOM=7
 ```
 
-- [ ] **Step 7: 运行聚焦测试和类型检查**
+- [x] **Step 7: 运行聚焦测试和类型检查**
 
 Run: `pnpm exec vitest run packages/contracts/src/weather-radar.test.ts packages/config/src/config.test.ts && pnpm --filter @hangban/contracts typecheck && pnpm --filter @hangban/config typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 8: 提交契约和配置**
+- [x] **Step 8: 提交契约和配置**
 
 ```bash
 git add packages/contracts/src/weather-radar.ts packages/contracts/src/weather-radar.test.ts packages/contracts/src/index.ts packages/config/src/index.ts packages/config/src/config.test.ts .env.example
@@ -308,7 +308,7 @@ git commit -m "feat: define weather radar contracts"
 - Consumes: `RuntimeConfig.rainViewerBaseUrl`、`RuntimeConfig.weatherRadarTimeoutMs`。
 - Produces: `WeatherRadarProvider`、`WeatherRadarProviderFrame`、`WeatherRadarProviderError`、`createRainViewerProvider()`。
 
-- [ ] **Step 1: 写元数据与 PNG 校验失败测试**
+- [x] **Step 1: 写元数据与 PNG 校验失败测试**
 
 创建 `packages/adapters/src/rainviewer.test.ts`，覆盖：
 
@@ -324,12 +324,12 @@ describe('RainViewer provider', () => {
         new Response(
           JSON.stringify({
             version: '2.0',
-            generated: 1_783_924_900,
+            generated: 1_783_929_700,
             host: 'https://tilecache.rainviewer.com',
             radar: {
               past: [
-                { time: 1_783_924_200, path: '/v2/radar/older' },
-                { time: 1_783_924_800, path: '/v2/radar/newest' },
+                { time: 1_783_929_000, path: '/v2/radar/older' },
+                { time: 1_783_929_600, path: '/v2/radar/newest' },
               ],
             },
           }),
@@ -373,13 +373,13 @@ describe('RainViewer provider', () => {
 });
 ```
 
-- [ ] **Step 2: 运行适配器测试并确认失败**
+- [x] **Step 2: 运行适配器测试并确认失败**
 
 Run: `pnpm exec vitest run packages/adapters/src/rainviewer.test.ts`
 
 Expected: FAIL，提示找不到 `./rainviewer`。
 
-- [ ] **Step 3: 实现适配器接口和错误类型**
+- [x] **Step 3: 实现适配器接口和错误类型**
 
 在 `packages/adapters/src/rainviewer.ts` 定义：
 
@@ -426,7 +426,7 @@ export class WeatherRadarProviderError extends Error {
 
 `fetchTile()` 必须在读取后验证 `content-type` 为 `image/png` 且 `bytes.byteLength <= maxTileBytes`。元数据和瓦片请求都使用 `AbortSignal.timeout(timeoutMs)`，对外只抛稳定错误类型。
 
-- [ ] **Step 4: 补齐安全与边界测试**
+- [x] **Step 4: 补齐安全与边界测试**
 
 在同一测试文件增加以下测试；`metadataResponse()` 只负责把传入对象包装为 JSON `Response`，不得修改被测数据：
 
@@ -460,12 +460,12 @@ it('ignores an invalid older frame and selects the valid frame', async () => {
     fetchImpl: vi.fn(async () =>
       metadataResponse({
         version: '2.0',
-        generated: 1_783_924_900,
+        generated: 1_783_929_700,
         host: 'https://tilecache.rainviewer.com',
         radar: {
           past: [
-            { time: 1_783_924_200, path: 'https://example.test/invalid' },
-            { time: 1_783_924_800, path: '/v2/radar/valid' },
+            { time: 1_783_929_000, path: 'https://example.test/invalid' },
+            { time: 1_783_929_600, path: '/v2/radar/valid' },
           ],
         },
       }),
@@ -522,7 +522,7 @@ it.each([
 });
 ```
 
-- [ ] **Step 5: 导出并运行测试**
+- [x] **Step 5: 导出并运行测试**
 
 从 `packages/adapters/src/index.ts` 增加：
 
@@ -534,7 +534,7 @@ Run: `pnpm exec vitest run packages/adapters/src/rainviewer.test.ts && pnpm --fi
 
 Expected: PASS。
 
-- [ ] **Step 6: 提交适配器**
+- [x] **Step 6: 提交适配器**
 
 ```bash
 git add packages/adapters/src/rainviewer.ts packages/adapters/src/rainviewer.test.ts packages/adapters/src/index.ts
@@ -557,7 +557,7 @@ git commit -m "feat: add RainViewer adapter"
 - Consumes: `WeatherRadarProvider` 和统一 `WeatherRadarStatus`。
 - Produces: `WeatherRadarService`、`createWeatherRadarService()`、`createDisabledWeatherRadarService()`。
 
-- [ ] **Step 1: 写缓存失败测试**
+- [x] **Step 1: 写缓存失败测试**
 
 在 `apps/api/src/weather-radar-cache.test.ts` 验证：
 
@@ -580,13 +580,13 @@ it('evicts by total bytes and expires entries at 24 hours', () => {
 });
 ```
 
-- [ ] **Step 2: 运行缓存测试并确认失败**
+- [x] **Step 2: 运行缓存测试并确认失败**
 
 Run: `pnpm exec vitest run apps/api/src/weather-radar-cache.test.ts`
 
 Expected: FAIL，提示找不到缓存模块。
 
-- [ ] **Step 3: 实现缓存**
+- [x] **Step 3: 实现缓存**
 
 `createWeatherRadarCache()` 必须提供：
 
@@ -604,7 +604,7 @@ type WeatherRadarCache = {
 
 帧和瓦片都记录 `storedAt`、`lastUsedAt`；每次读更新 LRU。删除过期条目后，再按最久未使用顺序淘汰，直到同时满足 `maxEntries` 和 `maxBytes`。返回 `Uint8Array` 副本，避免调用方修改缓存内容。
 
-- [ ] **Step 4: 写雷达模块失败测试**
+- [x] **Step 4: 写雷达模块失败测试**
 
 在 `apps/api/src/weather-radar-service.test.ts` 使用注入时钟和 fake provider 验证：
 
@@ -662,13 +662,13 @@ it('uses cached data for at most 24 hours after upstream failure', async () => {
 });
 ```
 
-- [ ] **Step 5: 运行模块测试并确认失败**
+- [x] **Step 5: 运行模块测试并确认失败**
 
 Run: `pnpm exec vitest run apps/api/src/weather-radar-cache.test.ts apps/api/src/weather-radar-service.test.ts`
 
 Expected: FAIL，提示找不到 `createWeatherRadarService`。
 
-- [ ] **Step 6: 实现雷达模块**
+- [x] **Step 6: 实现雷达模块**
 
 定义：
 
@@ -698,7 +698,7 @@ export function createDisabledWeatherRadarService(): WeatherRadarService;
 
 边界使用半开区间：年龄 `< 15 分钟` 为 `latest`，`< 2 小时` 为 `delayed`，`<= 24 小时` 为 `historical-cache`，`> 24 小时` 为 `FRAME_EXPIRED`。`tile()` 先校验 `0 <= z <= maxZoom` 和 `0 <= x,y < 2 ** z`，再按 `${frameId}:${z}:${x}:${y}` 查询缓存；未命中时只允许使用缓存帧注册信息请求 provider。
 
-- [ ] **Step 7: 覆盖主要失败路径**
+- [x] **Step 7: 覆盖主要失败路径**
 
 测试必须覆盖：
 
@@ -712,13 +712,13 @@ x 或 y 超出 2 ** z 被拒绝
 上游失败但无缓存返回 UPSTREAM_UNAVAILABLE
 ```
 
-- [ ] **Step 8: 运行聚焦测试和 API 类型检查**
+- [x] **Step 8: 运行聚焦测试和 API 类型检查**
 
 Run: `pnpm exec vitest run apps/api/src/weather-radar-cache.test.ts apps/api/src/weather-radar-service.test.ts && pnpm --filter @hangban/api typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 9: 提交缓存和模块**
+- [x] **Step 9: 提交缓存和模块**
 
 ```bash
 git add apps/api/src/weather-radar-cache.ts apps/api/src/weather-radar-cache.test.ts apps/api/src/weather-radar-service.ts apps/api/src/weather-radar-service.test.ts
@@ -741,7 +741,7 @@ git commit -m "feat: cache current weather radar"
 - Consumes: `WeatherRadarService.status()` 和 `WeatherRadarService.tile()`。
 - Produces: `GET /api/v1/weather/radar` 与 `GET /api/v1/weather/radar/tiles/:frameId/:z/:x/:y.png`。
 
-- [ ] **Step 1: 写路由失败测试**
+- [x] **Step 1: 写路由失败测试**
 
 创建 `apps/api/src/routes/weather-radar.test.ts`，用 `buildApp()` 注入 fake service：
 
@@ -771,13 +771,13 @@ it('returns cacheable PNG bytes', async () => {
 });
 ```
 
-- [ ] **Step 2: 运行路由测试并确认失败**
+- [x] **Step 2: 运行路由测试并确认失败**
 
 Run: `pnpm exec vitest run apps/api/src/routes/weather-radar.test.ts`
 
 Expected: FAIL，路由返回 404 或 `BuildAppOptions` 不接受天气模块。
 
-- [ ] **Step 3: 实现路由**
+- [x] **Step 3: 实现路由**
 
 `registerWeatherRadarRoutes(app, service)` 注册两个接口。参数使用 Zod schema：
 
@@ -801,7 +801,7 @@ reply
 
 参数无效返回 `400 WEATHER_RADAR_REQUEST_INVALID`；未知或过期帧返回 `404 WEATHER_RADAR_FRAME_UNAVAILABLE`；上游不可用返回 `503 WEATHER_RADAR_UPSTREAM_UNAVAILABLE`。错误体不包含上游 URL、正文或堆栈。
 
-- [ ] **Step 4: 接入 `buildApp()`**
+- [x] **Step 4: 接入 `buildApp()`**
 
 给 `BuildAppOptions` 增加：
 
@@ -815,13 +815,13 @@ weatherRadarService?: WeatherRadarService;
 void registerWeatherRadarRoutes(app, weatherRadarService);
 ```
 
-- [ ] **Step 5: 在 demo 和 external runtime 创建模块**
+- [x] **Step 5: 在 demo 和 external runtime 创建模块**
 
 提取 `createConfiguredWeatherRadarService(config)`，内部创建 RainViewer provider、缓存和 service。`createApiRuntime()` 与 `createExternalApiRuntime()` 都把结果传给 `buildApp()`；天气能力与 `DATA_MODE` 解耦。
 
 API 关闭时调用 `weatherRadarService.clear()`。不得在启动时主动访问 RainViewer；第一次状态请求才进行上游调用。
 
-- [ ] **Step 6: 补齐路由故障测试**
+- [x] **Step 6: 补齐路由故障测试**
 
 增加完整用例：
 
@@ -835,13 +835,13 @@ z=8 返回 400
 天气路由失败后 /api/v1/map/snapshot 仍返回 200
 ```
 
-- [ ] **Step 7: 运行 API 测试和类型检查**
+- [x] **Step 7: 运行 API 测试和类型检查**
 
 Run: `pnpm exec vitest run apps/api/src/routes/weather-radar.test.ts apps/api/src/weather-radar-service.test.ts apps/api/src/weather-radar-cache.test.ts && pnpm --filter @hangban/api typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 8: 提交 HTTP 接口**
+- [x] **Step 8: 提交 HTTP 接口**
 
 ```bash
 git add apps/api/src/routes/weather-radar.ts apps/api/src/routes/weather-radar.test.ts apps/api/src/app.ts apps/api/src/external-runtime.ts
@@ -1183,7 +1183,7 @@ git commit -m "feat: render weather radar overlay"
 - Consumes: 天气雷达 HTTP 接口和已确认 UI。
 - Produces: 桌面端/手机端回归覆盖、显式公网冒烟命令和实施状态记录。
 
-- [ ] **Step 1: 写 E2E 测试**
+- [x] **Step 1: 写 E2E 测试**
 
 创建 `tests/e2e/weather-radar.spec.ts`。在导航前使用 `page.route('**/api/v1/weather/radar', ...)` 返回固定状态，并对同源瓦片路由返回最小 PNG fixture。测试：
 
@@ -1207,13 +1207,13 @@ test('weather radar is opt-in and keeps attribution visible', async ({ page }, t
 
 第二个测试返回 `available: false`，断言开关恢复关闭、提示包含「航班数据不受影响」，且地图和航班搜索仍可操作。第三个测试返回 `historical-cache`，断言显示「非当前天气」。
 
-- [ ] **Step 2: 运行 E2E 并确认失败或缺少实现**
+- [x] **Step 2: 运行 E2E 并确认失败或缺少实现**
 
 Run: `pnpm e2e -- tests/e2e/weather-radar.spec.ts`
 
 Expected: 首次运行在实施未完整时 FAIL；完成 Task 2–7 后 PASS。
 
-- [ ] **Step 3: 实现显式公网冒烟入口**
+- [x] **Step 3: 实现显式公网冒烟入口**
 
 `apps/api/src/smoke-weather-radar.ts`：
 
@@ -1250,7 +1250,7 @@ process.stdout.write(
 
 该命令不加入 `scripts/verify`。
 
-- [ ] **Step 4: 更新状态文档**
+- [x] **Step 4: 更新状态文档**
 
 实施并完成视觉检查后：
 
@@ -1261,7 +1261,7 @@ docs/architecture.md：把天气雷达从「已确认设计」改为「当前实
 本计划：逐项勾选实际完成步骤；未执行的公网冒烟必须保持未勾选并说明原因
 ```
 
-- [ ] **Step 5: 运行聚焦验证**
+- [x] **Step 5: 运行聚焦验证**
 
 Run: `pnpm exec vitest run packages/contracts/src/weather-radar.test.ts packages/adapters/src/rainviewer.test.ts apps/api/src/weather-radar-cache.test.ts apps/api/src/weather-radar-service.test.ts apps/api/src/routes/weather-radar.test.ts apps/web/src/lib/use-weather-radar.test.tsx apps/web/src/lib/weather-radar-layer.test.ts apps/web/src/components/weather-radar-legend.test.tsx apps/web/src/components/app-shell.test.tsx`
 
@@ -1271,7 +1271,7 @@ Run: `pnpm e2e -- tests/e2e/weather-radar.spec.ts`
 
 Expected: desktop 与 mobile 项目全部 PASS。
 
-- [ ] **Step 6: 运行完整验证**
+- [x] **Step 6: 运行完整验证**
 
 Run: `pnpm verify`
 
@@ -1287,7 +1287,9 @@ Run: `pnpm smoke:weather-radar`
 
 Expected: 输出不含凭据的 JSON，包含 `providerId: "rainviewer"`、ISO `frameTime` 和正数 `tileBytes`。
 
-- [ ] **Step 7: 完成视觉核对**
+- [ ] 公网 RainViewer 冒烟未执行：该命令不属于默认离线门禁，本次未确认公网来源稳定性。
+
+- [x] **Step 7: 完成视觉核对**
 
 在 1440 × 900 和 390 × 844 原生视口核对：
 
@@ -1302,7 +1304,7 @@ Expected: 输出不含凭据的 JSON，包含 `providerId: "rainviewer"`、ISO `
 
 截图保存到 `.ardot-qa/weather-radar/implementation-desktop.png` 和 `.ardot-qa/weather-radar/implementation-mobile.png`。
 
-- [ ] **Step 8: 提交 E2E 和交付记录**
+- [x] **Step 8: 提交 E2E 和交付记录**
 
 ```bash
 git add tests/e2e/weather-radar.spec.ts apps/api/src/smoke-weather-radar.ts apps/api/package.json package.json docs/AGENTS.md docs/product-design.md docs/architecture.md docs/superpowers/plans/2026-07-13-weather-radar-overlay.md

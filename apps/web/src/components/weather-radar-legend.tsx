@@ -30,6 +30,7 @@ export function WeatherRadarLegend({ radar, playbackActive }: Props) {
   return (
     <aside
       className={`weather-radar-legend${playbackActive ? ' weather-radar-legend--playback-active' : ''}${historical ? ' weather-radar-legend--historical' : ''}`}
+      role="region"
       aria-label="天气雷达图例"
     >
       <header>

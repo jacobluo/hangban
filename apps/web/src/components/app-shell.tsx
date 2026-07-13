@@ -106,13 +106,21 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
     [flights, selectedFlight],
   );
   const filteredFlights = useMemo(() => filterFlights(flights, filters), [filters, flights]);
+  const flightFiltersActive = useMemo(
+    () =>
+      filters.maxAltitudeM !== defaultFlightFilters.maxAltitudeM ||
+      filters.airline !== defaultFlightFilters.airline ||
+      filters.freshness.length !== defaultFlightFilters.freshness.length ||
+      defaultFlightFilters.freshness.some((freshness) => !filters.freshness.includes(freshness)),
+    [filters],
+  );
   const filtersActive = useMemo(
     () =>
-      filteredFlights.length !== flights.length ||
+      flightFiltersActive ||
       Object.entries(mapLayers).some(
         ([key, value]) => defaultMapLayers[key as keyof MapLayers] !== value,
       ),
-    [filteredFlights.length, flights.length, mapLayers],
+    [flightFiltersActive, mapLayers],
   );
   const routeFlights = useMemo(
     () =>
@@ -307,7 +315,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             onClearFilters={clearFilters}
           />
 
-          {filtersActive && filteredFlights.length > 0 ? (
+          {flightFiltersActive && filteredFlights.length > 0 ? (
             <div className="filter-summary" role="status">
               <span>
                 已显示 {filteredFlights.length} / {flights.length} 架航班

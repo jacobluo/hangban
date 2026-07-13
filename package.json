@@ -13,6 +13,7 @@
     "infra:logs": "scripts/infra logs",
     "start:e2e": "pnpm --parallel --filter @hangban/api --filter @hangban/web start",
     "smoke:live": "pnpm --filter @hangban/ingestor smoke:live",
+    "smoke:weather-radar": "pnpm --filter @hangban/api smoke:weather-radar",
     "data:airports:sync": "pnpm --filter @hangban/ingestor data:airports:sync",
     "data:cities:sync": "pnpm --filter @hangban/ingestor data:cities:sync",
     "db:migrate": "pnpm --filter @hangban/ingestor db:migrate",
