@@ -107,7 +107,7 @@ Expected: 两张截图可读且与规格一致，设计确认完成。
 - Consumes: `WeatherRadarStatus` from `@hangban/contracts`。
 - Produces: `WeatherDataStatus({ status, loading, error })`；`DataStatusPage` 新增 `weatherRadarStatus`、`weatherRadarLoading`、`weatherRadarError`、`onRetryWeather` 输入。
 
-- [ ] **Step 1: 写天气状态映射的失败测试**
+- [x] **Step 1: 写天气状态映射的失败测试**
 
 创建 `weather-data-status.test.tsx`，定义一个有效雷达 fixture，并覆盖以下断言：
 
@@ -163,7 +163,7 @@ it('distinguishes loading and request failure', () => {
 
 同时断言 RainViewer 署名链接的 `href`、`target="_blank"` 和 `rel="noreferrer"`。
 
-- [ ] **Step 2: 运行测试并确认按预期失败**
+- [x] **Step 2: 运行测试并确认按预期失败**
 
 Run:
 
@@ -173,7 +173,7 @@ pnpm test:unit -- apps/web/src/components/weather-data-status.test.tsx
 
 Expected: FAIL，原因是 `weather-data-status.tsx` 或 `WeatherDataStatus` 尚不存在。
 
-- [ ] **Step 3: 实现纯展示组件**
+- [x] **Step 3: 实现纯展示组件**
 
 创建以下稳定映射，优先级必须是 `loading`、已获得的 `status`、请求 `error`、尚无结果：
 
@@ -263,7 +263,7 @@ export function WeatherDataStatus({ status, loading, error }: Props) {
 
 可用状态使用 `Intl.DateTimeFormat('zh-CN', { dateStyle: 'short', timeStyle: 'medium', timeZone: 'UTC' })` 格式化 `frameTime`，并在结果后追加 `UTC`。
 
-- [ ] **Step 4: 在状态页组合天气卡片和双重重试**
+- [x] **Step 4: 在状态页组合天气卡片和双重重试**
 
 把 `DataStatusPage` 的天气输入扩展为：
 
@@ -300,7 +300,7 @@ const retryAll = () => {
 </button>;
 ```
 
-- [ ] **Step 5: 按 Ardot 基线增加响应式样式**
+- [x] **Step 5: 按 Ardot 基线增加响应式样式**
 
 新增 `.weather-data-status`、`.weather-status-heading`、`.weather-status-badge`、`.weather-status-details` 和 `.weather-status-attribution` 样式。PC 卡片跟随来源列表宽度；手机媒体查询把详情改为单列，并确保链接最小高度为 `44 px`：
 
@@ -332,7 +332,7 @@ const retryAll = () => {
 
 颜色使用现有 CSS 变量；不能创建只靠红、黄、绿区分的状态。
 
-- [ ] **Step 6: 运行组件测试并确认通过**
+- [x] **Step 6: 运行组件测试并确认通过**
 
 Run:
 
@@ -342,7 +342,7 @@ pnpm test:unit -- apps/web/src/components/weather-data-status.test.tsx
 
 Expected: 新增测试全部 PASS。
 
-- [ ] **Step 7: 提交展示组件**
+- [x] **Step 7: 提交展示组件**
 
 ```bash
 git add apps/web/src/components/weather-data-status.tsx apps/web/src/components/weather-data-status.test.tsx apps/web/src/components/data-status-page.tsx apps/web/src/app/globals.css
@@ -361,7 +361,9 @@ git commit -m "feat: show weather data status"
 - Consumes: Task 2 的 `DataStatusPage` 新增天气 props 和现有 `useWeatherRadar(enabled)`。
 - Produces: `useWeatherRadar(mapLayers.weatherRadar || statusPageOpen)`；状态页主动检查、地图图层独立、双重重试行为。
 
-- [ ] **Step 1: 写主动检查和地图隔离的失败测试**
+实施说明：Task 2 新增的 `DataStatusPage` 必填参数需要 `AppShell` 同步传入才能保持 TypeScript 可编译，因此 Task 2 与 Task 3 合并为提交 `9f8b74f`。两个任务仍分别完成了预期的红灯、绿灯和聚焦验证。
+
+- [x] **Step 1: 写主动检查和地图隔离的失败测试**
 
 在 `app-shell.test.tsx` 增加：
 
@@ -388,7 +390,7 @@ it('retries weather from the data status page', async () => {
 
 扩展现有天气失败测试，先开启天气图层再注入错误；另加断言：只因状态页主动检查失败时，不显示地图级「航班数据不受影响」提示。
 
-- [ ] **Step 2: 运行聚焦测试并确认失败**
+- [x] **Step 2: 运行聚焦测试并确认失败**
 
 Run:
 
@@ -398,7 +400,7 @@ pnpm test:unit -- apps/web/src/components/app-shell.test.tsx
 
 Expected: FAIL，主动打开状态页后 Hook 仍收到 `false`，或天气重试未被调用。
 
-- [ ] **Step 3: 扩大天气请求条件并传入状态页**
+- [x] **Step 3: 扩大天气请求条件并传入状态页**
 
 将 Hook 调用改为：
 
@@ -426,7 +428,7 @@ const weatherRadar = useWeatherRadar(weatherRadarRequested);
 
 地图 props 和图例条件保持现有 `mapLayers.weatherRadar` 判断，不得改为 `weatherRadarRequested`。
 
-- [ ] **Step 4: 限制地图级失败提示只响应图层开启意图**
+- [x] **Step 4: 限制地图级失败提示只响应图层开启意图**
 
 把现有失败 effect 改为先检查地图图层是否开启：
 
@@ -441,7 +443,7 @@ useEffect(() => {
 
 这样状态页主动检查失败只显示天气卡片状态，不污染返回地图后的系统提示。
 
-- [ ] **Step 5: 运行聚焦测试并确认通过**
+- [x] **Step 5: 运行聚焦测试并确认通过**
 
 Run:
 
@@ -451,7 +453,7 @@ pnpm test:unit -- apps/web/src/components/app-shell.test.tsx apps/web/src/compon
 
 Expected: 两个文件全部 PASS；默认雷达关闭和已有图层失败测试继续通过。
 
-- [ ] **Step 6: 提交主动检查行为**
+- [x] **Step 6: 提交主动检查行为**
 
 ```bash
 git add apps/web/src/components/app-shell.tsx apps/web/src/components/app-shell.test.tsx
@@ -472,7 +474,9 @@ git commit -m "feat: check weather on data status page"
 - Consumes: Task 1 的 Ardot 截图、Task 2 的天气卡片和 Task 3 的主动请求条件。
 - Produces: PC/手机真实用户流程、天气失败隔离和无水平溢出回归证据。
 
-- [ ] **Step 1: 写状态页主动检查 E2E**
+实施说明：`.ardot-qa/` 按仓库约定属于本地视觉检查产物并被 Git 忽略，因此设计与实现截图保留在本地，不强制加入提交。
+
+- [x] **Step 1: 写状态页主动检查 E2E**
 
 在 `ui-controls.spec.ts` 的状态页测试开始前注册 `/api/v1/weather/radar` mock，记录请求次数并返回 `latest` 状态：
 
@@ -508,11 +512,11 @@ expect(weatherRequests).toBeGreaterThan(0);
 await expect(page.getByRole('region', { name: '天气雷达图例' })).toHaveCount(0);
 ```
 
-- [ ] **Step 2: 写不可用状态不影响航班总体健康的 E2E**
+- [x] **Step 2: 写不可用状态不影响航班总体健康的 E2E**
 
 在 `weather-radar.spec.ts` 增加只打开状态页、不打开雷达图层的用例。Mock 返回 `UPSTREAM_UNAVAILABLE`，然后断言天气卡片显示「暂不可用」，页面顶部航班总体健康文案与 mock 航班来源一致，并且不存在地图级「航班数据不受影响」提示。
 
-- [ ] **Step 3: 运行 PC 与手机聚焦 E2E**
+- [x] **Step 3: 运行 PC 与手机聚焦 E2E**
 
 Run:
 
@@ -522,7 +526,7 @@ pnpm exec playwright test tests/e2e/ui-controls.spec.ts tests/e2e/weather-radar.
 
 Expected: PC 与手机项目全部 PASS；手机状态页 `scrollWidth === clientWidth === 390`。
 
-- [ ] **Step 4: 生成实现截图并与 Ardot 核对**
+- [x] **Step 4: 生成实现截图并与 Ardot 核对**
 
 Run:
 
@@ -539,7 +543,7 @@ CAPTURE_DATA_STATUS_QA=1 pnpm exec playwright test tests/e2e/ui-controls.spec.ts
 
 逐项核对卡片位置、间距、状态标签、RainViewer 署名、手机换行和无水平溢出。发现偏差时先修复实现并重跑聚焦测试。
 
-- [ ] **Step 5: 提交 E2E 与视觉检查记录**
+- [x] **Step 5: 提交 E2E 与视觉检查记录**
 
 ```bash
 git add tests/e2e/ui-controls.spec.ts tests/e2e/weather-radar.spec.ts .ardot-qa/weather-data-status

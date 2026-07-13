@@ -3,6 +3,26 @@ import { expect, test } from '@playwright/test';
 test('data status uses a full responsive page and returns to the map', async ({
   page,
 }, testInfo) => {
+  let weatherRequests = 0;
+  await page.route('**/api/v1/weather/radar', async (route) => {
+    weatherRequests += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        available: true,
+        providerId: 'rainviewer',
+        frameId: 'frame-1783929600',
+        frameTime: new Date(Date.now() - 5 * 60_000).toISOString(),
+        freshness: 'latest',
+        tileTemplate: '/api/v1/weather/radar/tiles/frame-1783929600/{z}/{x}/{y}.png',
+        attribution: {
+          label: 'Weather radar by RainViewer',
+          url: 'https://www.rainviewer.com/',
+        },
+      }),
+    });
+  });
   await page.goto('/');
 
   if (testInfo.project.name === 'mobile') {
@@ -16,6 +36,13 @@ test('data status uses a full responsive page and returns to the map', async ({
   await expect(statusPage).toBeVisible();
   await expect(page.getByRole('main', { name: '全球实时航班地图' })).toBeHidden();
   await expect(page.getByText(/当前航班数不代表全球实际在途总数/)).toBeVisible();
+  const weatherStatus = page.getByRole('region', { name: '天气数据' });
+  await expect(weatherStatus).toContainText('最新');
+  await expect(
+    weatherStatus.getByRole('link', { name: 'Weather radar by RainViewer' }),
+  ).toBeVisible();
+  expect(weatherRequests).toBeGreaterThan(0);
+  await expect(page.getByRole('region', { name: '天气雷达图例' })).toHaveCount(0);
   await expect
     .poll(async () => Math.round((await statusPage.boundingBox())?.width ?? 0))
     .toBe(viewportWidth);
@@ -36,8 +63,13 @@ test('data status uses a full responsive page and returns to the map', async ({
   }
   if (process.env.CAPTURE_DATA_STATUS_QA === '1') {
     await page.screenshot({
-      path: `.ardot-qa/data-status-page/implementation-${testInfo.project.name}.png`,
+      path: `.ardot-qa/weather-data-status/implementation-${testInfo.project.name}.png`,
       fullPage: true,
+    });
+    await weatherStatus.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: `.ardot-qa/weather-data-status/implementation-${testInfo.project.name}-weather-card.png`,
+      fullPage: false,
     });
   }
   await backButton.click();
