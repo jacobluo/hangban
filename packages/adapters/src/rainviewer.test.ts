@@ -137,7 +137,7 @@ describe('RainViewer provider', () => {
     const response = new Response(new Uint8Array([1, 2, 3, 4, 5]), {
       headers: { 'content-length': '5', 'content-type': 'image/png' },
     });
-    const arrayBufferSpy = vi.spyOn(response, 'arrayBuffer');
+    const getReaderSpy = vi.spyOn(response.body!, 'getReader');
     const provider = createRainViewerProvider({
       baseUrl: 'https://api.rainviewer.com',
       fetchImpl: vi.fn(async () => response) as typeof fetch,
@@ -156,7 +156,7 @@ describe('RainViewer provider', () => {
         2,
       ),
     ).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
-    expect(arrayBufferSpy).not.toHaveBeenCalled();
+    expect(getReaderSpy).not.toHaveBeenCalled();
   });
 
   it('cancels a chunked tile body as soon as it exceeds maxTileBytes', async () => {
@@ -342,6 +342,27 @@ describe('RainViewer provider', () => {
     });
 
     await expect(provider.fetchLatestFrame()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('accepts the maximum timestamp supported by JavaScript Date', async () => {
+    const provider = createRainViewerProvider({
+      baseUrl: 'https://api.rainviewer.com',
+      fetchImpl: vi.fn(async () =>
+        metadataResponse({
+          host: 'https://tilecache.rainviewer.com',
+          radar: {
+            past: [{ time: 8_640_000_000_000, path: '/v2/radar/max-date' }],
+          },
+        }),
+      ) as typeof fetch,
+      timeoutMs: 100,
+      maxTileBytes: 4,
+    });
+
+    await expect(provider.fetchLatestFrame()).resolves.toMatchObject({
+      frameId: 'frame-8640000000000',
+      upstreamPath: '/v2/radar/max-date',
+    });
   });
 
   it('rejects a frame timestamp outside the JavaScript Date range', async () => {

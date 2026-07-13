@@ -2,9 +2,10 @@ import { z } from 'zod';
 
 const RAINVIEWER_TILE_HOST = 'https://tilecache.rainviewer.com';
 const RAINVIEWER_API_BASE_URL = 'https://api.rainviewer.com';
+const MAX_DATE_SECONDS = 8_640_000_000_000;
 
 const radarFrameSchema = z.object({
-  time: z.number().int().positive().max(8_640_000_000),
+  time: z.number().int().positive().max(MAX_DATE_SECONDS),
   path: z.string().regex(/^\/v2\/radar\/[A-Za-z0-9_-]+$/),
 });
 
