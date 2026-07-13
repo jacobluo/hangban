@@ -34,6 +34,20 @@ const configSchema = z.object({
   INGESTOR_LEASE_RENEW_MS: z.coerce.number().int().min(5_000).default(10_000),
   PROVIDER_TIMEOUT_MS: z.coerce.number().int().positive().default(8_000),
   PROVIDER_CACHE_TTL_MS: z.coerce.number().int().positive().default(30_000),
+  WEATHER_RADAR_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
+  RAINVIEWER_BASE_URL: z
+    .string()
+    .url()
+    .refine((value) => new URL(value).protocol === 'https:')
+    .default('https://api.rainviewer.com'),
+  WEATHER_RADAR_TIMEOUT_MS: z.coerce.number().int().positive().default(8_000),
+  WEATHER_RADAR_CACHE_TTL_MS: z.coerce.number().int().positive().default(86_400_000),
+  WEATHER_RADAR_CACHE_MAX_ENTRIES: z.coerce.number().int().positive().default(2_048),
+  WEATHER_RADAR_CACHE_MAX_BYTES: z.coerce.number().int().positive().default(134_217_728),
+  WEATHER_RADAR_MAX_ZOOM: z.coerce.number().int().min(0).max(7).default(7),
   ADSB_LOL_BASE_URL: z.url().default('https://api.adsb.lol/v2'),
   AIRPLANES_LIVE_BASE_URL: z.url().default('https://api.airplanes.live/v2'),
   OPENSKY_BASE_URL: z.url().default('https://opensky-network.org/api'),
@@ -79,6 +93,13 @@ export type RuntimeConfig = {
   ingestorLeaseRenewMs: number;
   providerTimeoutMs: number;
   providerCacheTtlMs: number;
+  weatherRadarEnabled: boolean;
+  rainViewerBaseUrl: string;
+  weatherRadarTimeoutMs: number;
+  weatherRadarCacheTtlMs: number;
+  weatherRadarCacheMaxEntries: number;
+  weatherRadarCacheMaxBytes: number;
+  weatherRadarMaxZoom: number;
   adsbLolBaseUrl: string;
   airplanesLiveBaseUrl: string;
   openSkyBaseUrl: string;
@@ -156,6 +177,13 @@ export function loadConfig(
     ingestorLeaseRenewMs: parsed.INGESTOR_LEASE_RENEW_MS,
     providerTimeoutMs: parsed.PROVIDER_TIMEOUT_MS,
     providerCacheTtlMs: parsed.PROVIDER_CACHE_TTL_MS,
+    weatherRadarEnabled: parsed.WEATHER_RADAR_ENABLED,
+    rainViewerBaseUrl: parsed.RAINVIEWER_BASE_URL,
+    weatherRadarTimeoutMs: parsed.WEATHER_RADAR_TIMEOUT_MS,
+    weatherRadarCacheTtlMs: parsed.WEATHER_RADAR_CACHE_TTL_MS,
+    weatherRadarCacheMaxEntries: parsed.WEATHER_RADAR_CACHE_MAX_ENTRIES,
+    weatherRadarCacheMaxBytes: parsed.WEATHER_RADAR_CACHE_MAX_BYTES,
+    weatherRadarMaxZoom: parsed.WEATHER_RADAR_MAX_ZOOM,
     adsbLolBaseUrl: parsed.ADSB_LOL_BASE_URL,
     airplanesLiveBaseUrl: parsed.AIRPLANES_LIVE_BASE_URL,
     openSkyBaseUrl: parsed.OPENSKY_BASE_URL,
