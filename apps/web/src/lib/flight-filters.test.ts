@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createDemoFlights } from '@hangban/testkit';
 
 import { defaultFlightFilters, filterFlights } from './flight-filters';
+import { defaultMapLayers } from './map-settings';
 
 const flights = createDemoFlights(new Date('2026-07-11T08:00:00.000Z'));
 
@@ -25,5 +26,9 @@ describe('filterFlights', () => {
     const before = structuredClone(flights);
     filterFlights(flights, { ...defaultFlightFilters, maxAltitudeM: 5_000 });
     expect(flights).toEqual(before);
+  });
+
+  it('keeps weather radar off in the reset layer state', () => {
+    expect(defaultMapLayers.weatherRadar).toBe(false);
   });
 });

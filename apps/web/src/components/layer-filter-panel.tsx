@@ -10,6 +10,7 @@ type Props = {
   flights: Flight[];
   filters: FlightFilters;
   layers: MapLayers;
+  weatherRadarLoading: boolean;
   onApply: (filters: FlightFilters, layers: MapLayers) => void;
   onClose: () => void;
 };

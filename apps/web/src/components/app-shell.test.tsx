@@ -3,14 +3,31 @@
 import { render, screen, within } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mapFlyTo } = vi.hoisted(() => ({ mapFlyTo: vi.fn() }));
+const { mapFlyTo, weatherRadarState, useWeatherRadarMock, flightMapProps } = vi.hoisted(() => ({
+  mapFlyTo: vi.fn(),
+  weatherRadarState: {
+    status: null as null | { available: boolean },
+    radar: null,
+    tileTemplate: null,
+    loading: false,
+    error: null as string | null,
+    retry: vi.fn(),
+  },
+  useWeatherRadarMock: vi.fn(),
+  flightMapProps: { current: null as Record<string, unknown> | null },
+}));
+
+vi.mock('../lib/use-weather-radar', () => ({
+  useWeatherRadar: useWeatherRadarMock,
+}));
 
 vi.mock('./flight-map', async () => {
   const React = await import('react');
   return {
-    FlightMap: React.forwardRef(function MockFlightMap(_props, ref) {
+    FlightMap: React.forwardRef(function MockFlightMap(props, ref) {
+      flightMapProps.current = props as Record<string, unknown>;
       React.useImperativeHandle(ref, () => ({
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
@@ -26,6 +43,35 @@ import { AppShell } from './app-shell';
 import { demoData } from '../lib/demo-data';
 
 describe('AppShell', () => {
+  beforeEach(() => {
+    weatherRadarState.status = null;
+    weatherRadarState.radar = null;
+    weatherRadarState.tileTemplate = null;
+    weatherRadarState.loading = false;
+    weatherRadarState.error = null;
+    useWeatherRadarMock.mockImplementation(() => weatherRadarState);
+  });
+
+  it('keeps weather radar disabled by default and passes no radar to the map', () => {
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(useWeatherRadarMock).toHaveBeenCalledWith(false);
+    expect(flightMapProps.current).toMatchObject({
+      weatherRadar: null,
+      weatherRadarTileTemplate: null,
+    });
+  });
+
+  it('turns weather radar intent off after a non-fatal weather failure', async () => {
+    weatherRadarState.error = '天气雷达暂时不可用';
+
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    expect(await screen.findByText('天气雷达暂时不可用，航班数据不受影响。')).toBeVisible();
+    expect(useWeatherRadarMock).toHaveBeenLastCalledWith(false);
+    expect(screen.getByLabelText('实时航班地图')).toBeVisible();
+  });
+
   it('exposes the live map and freshness status as primary application landmarks', () => {
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 

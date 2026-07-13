@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 
-import type { Airport, Bbox, Flight } from '@hangban/contracts';
+import type { Airport, Bbox, Flight, WeatherRadarAvailableStatus } from '@hangban/contracts';
 
 import { emptyLineData, greatCircleGeometry } from '../lib/map-geometry';
 import { type MapLayers } from '../lib/map-settings';
@@ -20,6 +20,8 @@ type Props = {
   selectedFlight: Flight | null;
   selectedAirport: Airport | null;
   layers: MapLayers;
+  weatherRadar: WeatherRadarAvailableStatus | null;
+  weatherRadarTileTemplate: string | null;
   routeOrigin: Airport | null;
   routeDestination: Airport | null;
   enabled?: boolean;

@@ -13,6 +13,7 @@ import { projectFlightsBack } from '../lib/flight-playback';
 import { searchAirports } from '../lib/api-client';
 import { useRealtimeFlights } from '../lib/use-realtime-flights';
 import { useAirports } from '../lib/use-airports';
+import { useWeatherRadar } from '../lib/use-weather-radar';
 import { AirportExplorer } from './airport-explorer';
 import { DataStatus } from './data-status';
 import { DataStatusPage } from './data-status-page';
@@ -57,6 +58,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
   const [mapLayers, setMapLayers] = useState<MapLayers>(defaultMapLayers);
   const [mapMessage, setMapMessage] = useState<string | null>(null);
   const [playbackMinutes, setPlaybackMinutes] = useState(0);
+  const weatherRadar = useWeatherRadar(mapLayers.weatherRadar);
   const mapRef = useRef<FlightMapHandle>(null);
   const airportChosenRef = useRef(false);
   const statusTriggerRef = useRef<HTMLElement | null>(null);
@@ -80,6 +82,14 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
       .catch(() => undefined);
     return () => controller.abort();
   }, [mapEnabled, routeDestination, routeOrigin]);
+
+  useEffect(() => {
+    if (weatherRadar.error === null && weatherRadar.status?.available !== false) return;
+    setMapLayers((current) =>
+      current.weatherRadar ? { ...current, weatherRadar: false } : current,
+    );
+    setMapMessage('天气雷达暂时不可用，航班数据不受影响。');
+  }, [weatherRadar.error, weatherRadar.status]);
 
   const placeholder =
     view === 'airports'
@@ -250,6 +260,8 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             selectedAirport={view === 'airports' ? selectedAirport : null}
             enabled={mapEnabled}
             layers={mapLayers}
+            weatherRadar={mapLayers.weatherRadar ? weatherRadar.radar : null}
+            weatherRadarTileTemplate={weatherRadar.tileTemplate}
             routeActive={view === 'routes'}
             routeOrigin={routeOrigin}
             routeDestination={routeDestination}
@@ -367,6 +379,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
               flights={flights}
               filters={filters}
               layers={mapLayers}
+              weatherRadarLoading={weatherRadar.loading}
               onClose={() => setLayerPanelOpen(false)}
               onApply={(nextFilters, nextLayers) => {
                 setFilters(nextFilters);
