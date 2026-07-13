@@ -64,6 +64,12 @@ export function createWeatherRadarCache({
   const entries = new Map<string, CacheEntry>();
   let totalBytes = 0;
   let order = 0;
+  let lastEffectiveNow = Number.NEGATIVE_INFINITY;
+
+  const effectiveNow = (): number => {
+    lastEffectiveNow = Math.max(lastEffectiveNow, now());
+    return lastEffectiveNow;
+  };
 
   const frameKey = (frameId: string) => `frame:${frameId}`;
   const tileKey = (key: string) => `tile:${key}`;
@@ -76,14 +82,14 @@ export function createWeatherRadarCache({
   };
 
   const purgeExpired = (): void => {
-    const currentTime = now();
+    const currentTime = effectiveNow();
     for (const [key, entry] of entries) {
       if (currentTime - entry.storedAt > ttlMs) remove(key);
     }
   };
 
   const touch = (entry: CacheEntry): void => {
-    entry.lastUsedAt = now();
+    entry.lastUsedAt = effectiveNow();
     entry.order = ++order;
   };
 
@@ -93,11 +99,7 @@ export function createWeatherRadarCache({
       let oldestKey: string | undefined;
       let oldest: CacheEntry | undefined;
       for (const [key, entry] of entries) {
-        if (
-          !oldest ||
-          entry.lastUsedAt < oldest.lastUsedAt ||
-          (entry.lastUsedAt === oldest.lastUsedAt && entry.order < oldest.order)
-        ) {
+        if (!oldest || entry.order < oldest.order) {
           oldestKey = key;
           oldest = entry;
         }
@@ -117,7 +119,7 @@ export function createWeatherRadarCache({
   return {
     setFrame(frame) {
       const value = cloneFrame(frame);
-      const storedAt = now();
+      const storedAt = effectiveNow();
       replace(frameKey(frame.frameId), {
         kind: 'frame',
         value,
@@ -154,7 +156,7 @@ export function createWeatherRadarCache({
 
     setTile(key, bytes) {
       const value = new Uint8Array(bytes);
-      const storedAt = now();
+      const storedAt = effectiveNow();
       replace(tileKey(key), {
         kind: 'tile',
         value,

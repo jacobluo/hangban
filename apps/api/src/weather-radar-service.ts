@@ -107,18 +107,23 @@ export function createWeatherRadarService({
     async status() {
       if (!enabled) return unavailable('DISABLED');
 
+      const requestGeneration = generation;
       let frame: WeatherRadarProviderFrame;
       try {
         frame = await provider.fetchLatestFrame();
       } catch {
         return fallbackStatus();
       }
+      if (generation !== requestGeneration) return fallbackStatus();
 
       const timestamp = Date.parse(frame.frameTime);
       if (!Number.isFinite(timestamp)) return unavailable('NO_VALID_FRAME');
       cache.setFrame(frame);
+      if (generation !== requestGeneration) return fallbackStatus();
       lastRegisteredFrameTime = timestamp;
-      if (!cache.getFrame(frame.frameId)) return unavailable('NO_VALID_FRAME');
+      const registeredFrame = cache.getFrame(frame.frameId);
+      if (generation !== requestGeneration) return fallbackStatus();
+      if (!registeredFrame) return unavailable('NO_VALID_FRAME');
       return statusFromFrame(frame);
     },
 
@@ -175,7 +180,7 @@ export function createWeatherRadarService({
             );
           })
           .finally(() => {
-            inFlightTiles.delete(key);
+            if (inFlightTiles.get(key) === request) inFlightTiles.delete(key);
           });
         inFlightTiles.set(key, request);
       }

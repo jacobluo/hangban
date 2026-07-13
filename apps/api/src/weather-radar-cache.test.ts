@@ -47,6 +47,8 @@ describe('weather radar cache', () => {
     const source = new Uint8Array([1, 2]);
     cache.setTile('tile', source);
     source[0] = 9;
+    expect(cache.getTile('tile')).toEqual(new Uint8Array([1, 2]));
+
     cache.setTile('tile', new Uint8Array([3, 4, 5]));
 
     const cached = cache.getTile('tile');
@@ -54,6 +56,20 @@ describe('weather radar cache', () => {
     cached![0] = 9;
     expect(cache.getTile('tile')).toEqual(new Uint8Array([3, 4, 5]));
     expect(cache.stats()).toEqual({ entries: 1, bytes: 3 });
+  });
+
+  it('evicts a single entry larger than maxBytes', () => {
+    const cache = createWeatherRadarCache({
+      ttlMs: DAY_MS,
+      maxEntries: 2,
+      maxBytes: 2,
+      now: () => 0,
+    });
+
+    cache.setTile('oversized', new Uint8Array([1, 2, 3]));
+
+    expect(cache.getTile('oversized')).toBeNull();
+    expect(cache.stats()).toEqual({ entries: 0, bytes: 0 });
   });
 
   it('enforces byte and entry limits independently', () => {
@@ -95,6 +111,58 @@ describe('weather radar cache', () => {
     cache.clear();
     expect(cache.stats()).toEqual({ entries: 0, bytes: 0 });
     expect(cache.newestFrame()).toBeNull();
+  });
+
+  it('sets expired entry bytes back to zero', () => {
+    let now = 0;
+    const cache = createWeatherRadarCache({
+      ttlMs: DAY_MS,
+      maxEntries: 2,
+      maxBytes: 10,
+      now: () => now,
+    });
+    cache.setTile('tile', new Uint8Array([1, 2, 3]));
+    now = DAY_MS + 1;
+
+    expect(cache.stats()).toEqual({ entries: 0, bytes: 0 });
+  });
+
+  it('keeps a touched entry most-recently-used when the raw clock rolls back', () => {
+    let now = 100;
+    const cache = createWeatherRadarCache({
+      ttlMs: DAY_MS,
+      maxEntries: 2,
+      maxBytes: 10,
+      now: () => now,
+    });
+    cache.setTile('a', new Uint8Array([1]));
+    now = 200;
+    cache.setTile('b', new Uint8Array([2]));
+    now = 50;
+    expect(cache.getTile('a')).toEqual(new Uint8Array([1]));
+    cache.setTile('c', new Uint8Array([3]));
+
+    expect(cache.getTile('a')).toEqual(new Uint8Array([1]));
+    expect(cache.getTile('b')).toBeNull();
+    expect(cache.getTile('c')).toEqual(new Uint8Array([3]));
+  });
+
+  it('uses non-decreasing effective time for writes after a clock rollback', () => {
+    let now = DAY_MS;
+    const cache = createWeatherRadarCache({
+      ttlMs: DAY_MS,
+      maxEntries: 2,
+      maxBytes: 10,
+      now: () => now,
+    });
+    cache.setTile('anchor', new Uint8Array([1]));
+    now = 0;
+    cache.setTile('after-rollback', new Uint8Array([2]));
+
+    now = DAY_MS + 1;
+    expect(cache.getTile('after-rollback')).toEqual(new Uint8Array([2]));
+    now = 2 * DAY_MS + 1;
+    expect(cache.getTile('after-rollback')).toBeNull();
   });
 
   it('rejects a TTL longer than 24 hours', () => {
