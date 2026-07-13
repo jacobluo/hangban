@@ -22,6 +22,7 @@
 - [`superpowers/plans/2026-07-12-aero-chart-visual-deepening.md`](superpowers/plans/2026-07-12-aero-chart-visual-deepening.md)：Ardot 深化、前端同步、视觉核对和验证门禁的实施步骤。
 - [`superpowers/specs/2026-07-13-desktop-data-status-page-design.md`](superpowers/specs/2026-07-13-desktop-data-status-page-design.md)：修复 PC 实时状态入口误用右侧栏的问题，明确桌面整页与手机全高页面规则。
 - [`superpowers/plans/2026-07-13-desktop-data-status-page.md`](superpowers/plans/2026-07-13-desktop-data-status-page.md)：桌面数据状态整页、手机全高页面、响应式回归和视觉验收的实施步骤。
+- [`superpowers/specs/2026-07-13-weather-radar-overlay-design.md`](superpowers/specs/2026-07-13-weather-radar-overlay-design.md)：RainViewer 天气雷达图层、24 小时短期缓存、代理安全和降级语义设计。
 
 ## 状态说明
 
@@ -39,6 +40,7 @@
 | 航班补充数据 | 已实现 ADSBdb 异步补全、缓存、降级和推断路线说明                 |
 | 真实采集     | 独立 ingestor 通过 Redis 租约单写；免费来源只提供局部覆盖        |
 | 生产基础设施 | PostgreSQL/PostGIS、Redis、完整 Compose 与真实容器门禁已实现     |
+| 天气雷达     | 已确认 RainViewer 免费实验性图层设计，尚未更新 Ardot 或实施      |
 
 UI 当前包含全球实时地图、统一搜索、航班摘要与完整详情、机场探索、航线探索、筛选与图层、数据状态、短时位置回看，以及加载、空结果、断线和降级状态。首期不包含账号体系。
 
