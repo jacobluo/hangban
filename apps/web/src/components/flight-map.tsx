@@ -54,6 +54,7 @@ function flightsToGeoJson(
         callsign: flight.callsign,
         freshness: flight.freshness,
         selected: flight.id === selectedFlight?.id ? 1 : 0,
+        selectionActive: selectedFlight === null ? 0 : 1,
         rotation: (flight.headingDeg ?? 0) - 45,
       },
     })),
@@ -315,6 +316,20 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
           paint: { 'text-color': '#102a43', 'text-halo-color': '#ffffff', 'text-halo-width': 2 },
         });
         map.addLayer({
+          id: 'flight-selection-halo',
+          type: 'circle',
+          source: 'flights',
+          filter: ['==', ['get', 'selected'], 1],
+          paint: {
+            'circle-radius': 17,
+            'circle-color': '#ff6f3d',
+            'circle-opacity': 0.14,
+            'circle-stroke-color': '#ff6f3d',
+            'circle-stroke-width': 1.5,
+            'circle-stroke-opacity': 0.5,
+          },
+        });
+        map.addLayer({
           id: 'flight-points',
           type: 'symbol',
           source: 'flights',
@@ -331,7 +346,14 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
             'icon-allow-overlap': true,
           },
           paint: {
-            'icon-opacity': ['match', ['get', 'freshness'], 'stale', 0.35, 'delayed', 0.65, 0.95],
+            'icon-opacity': [
+              'case',
+              ['==', ['get', 'selected'], 1],
+              1,
+              ['==', ['get', 'selectionActive'], 1],
+              0.4,
+              ['match', ['get', 'freshness'], 'stale', 0.32, 'delayed', 0.52, 0.72],
+            ],
           },
         });
         map.addLayer({
@@ -345,6 +367,7 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
 
         const currentLayers = layersRef.current;
         setLayerVisibility(map, 'osm', currentLayers.baseMap);
+        setLayerVisibility(map, 'flight-selection-halo', currentLayers.flights);
         setLayerVisibility(map, 'flight-points', currentLayers.flights);
         setLayerVisibility(map, 'flight-labels', currentLayers.flights && currentLayers.labels);
         setLayerVisibility(map, 'airport-points', currentLayers.airports);
@@ -412,6 +435,7 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     const map = mapRef.current;
     if (map === null || !map.isStyleLoaded()) return;
     setLayerVisibility(map, 'osm', layers.baseMap);
+    setLayerVisibility(map, 'flight-selection-halo', layers.flights);
     setLayerVisibility(map, 'flight-points', layers.flights);
     setLayerVisibility(map, 'flight-labels', layers.flights && layers.labels);
     setLayerVisibility(map, 'airport-points', layers.airports);

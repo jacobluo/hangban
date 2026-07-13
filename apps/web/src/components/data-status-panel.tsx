@@ -32,6 +32,14 @@ function utcTime(value: string | null) {
   return `${value.slice(11, 19)} UTC`;
 }
 
+const errorLabels: Record<NonNullable<SourceStatus['errorCode']>, string> = {
+  RATE_LIMITED: '请求频率受限',
+  AUTH_FAILED: '鉴权失败',
+  TIMEOUT: '请求超时',
+  INVALID_RESPONSE: '响应格式异常',
+  UPSTREAM_ERROR: '上游服务异常',
+};
+
 export function DataStatusPanel({
   statuses,
   connectionState,
@@ -41,6 +49,10 @@ export function DataStatusPanel({
   onRetry,
 }: Props) {
   const healthyCount = statuses.filter((status) => status.state === 'healthy').length;
+  const lastSuccessAt = statuses
+    .flatMap((status) => (status.lastSuccessAt === null ? [] : [status.lastSuccessAt]))
+    .sort()
+    .at(-1);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -59,7 +71,13 @@ export function DataStatusPanel({
     >
       <div className="panel-heading settings-heading">
         <h2 id="data-status-title">数据覆盖与服务状态</h2>
-        <button className="icon-button" type="button" aria-label="关闭数据状态" onClick={onClose}>
+        <button
+          className="icon-button"
+          type="button"
+          aria-label="关闭数据状态"
+          autoFocus
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </div>
@@ -91,10 +109,12 @@ export function DataStatusPanel({
           <span>当前航班</span>
         </div>
         <div>
-          <strong>{utcTime(lastUpdatedAt)}</strong>
-          <span>最后更新</span>
+          <strong>{utcTime(lastSuccessAt ?? lastUpdatedAt)}</strong>
+          <span>最后成功时间</span>
         </div>
       </div>
+
+      <p className="coverage-note">当前航班数不代表全球实际在途总数，仅反映当前数据覆盖。</p>
 
       <h3 className="status-section-title">数据源</h3>
       <div className="provider-list">
@@ -103,9 +123,34 @@ export function DataStatusPanel({
             <span className={`status-dot ${status.state === 'healthy' ? '' : 'delayed'}`} />
             <div>
               <strong>{providerNames[status.providerId] ?? status.providerId}</strong>
-              <span>
-                {stateLabels[status.state]} · {utcTime(status.lastSuccessAt)}
-              </span>
+              <dl className="provider-details">
+                <div>
+                  <dt>最近结果</dt>
+                  <dd>{stateLabels[status.state]}</dd>
+                </div>
+                <div>
+                  <dt>最后成功时间</dt>
+                  <dd>{utcTime(status.lastSuccessAt)}</dd>
+                </div>
+                <div>
+                  <dt>记录数</dt>
+                  <dd>{status.lastRecordCount ?? '未获得'}</dd>
+                </div>
+                <div>
+                  <dt>错误类型</dt>
+                  <dd>{status.errorCode === undefined ? '无' : errorLabels[status.errorCode]}</dd>
+                </div>
+                <div>
+                  <dt>结果语义</dt>
+                  <dd>
+                    {status.state === 'healthy'
+                      ? '使用当前结果'
+                      : status.lastSuccessAt === null
+                        ? '无可用缓存'
+                        : '最近成功结果仅供降级参考'}
+                  </dd>
+                </div>
+              </dl>
               {status.message === undefined ? null : <em>{status.message}</em>}
             </div>
           </article>

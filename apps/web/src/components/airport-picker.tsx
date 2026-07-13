@@ -76,6 +76,7 @@ export function AirportPicker({ kind, airports, selected, onSelect, onClose }: P
           <X size={17} />
         </button>
       </div>
+      <p className="airport-picker-scope">{query.trim() ? '全球搜索结果' : '当前视野机场'}</p>
       <div className="airport-option-list" role="listbox" aria-label={`${label}选项`}>
         {loading ? <p className="empty-copy">正在全球搜索机场…</p> : null}
         {!loading && results.length === 0 ? (

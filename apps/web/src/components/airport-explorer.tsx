@@ -34,6 +34,7 @@ export function AirportExplorer({
 }: Props) {
   const [filter, setFilter] = useState<'all' | 'nearby' | 'popular'>('all');
   const nearby = nearbyFlights(flights, selected, 200);
+  const realtimeSources = [...new Set(flights.flatMap((flight) => flight.sources))];
   const displayedAirports = useMemo(() => {
     if (filter === 'nearby') {
       return airports.toSorted(
@@ -166,17 +167,17 @@ export function AirportExplorer({
         </p>
         <div className="metric-grid two">
           <div>
-            <strong>{nearby.length}</strong>
-            <span>200 km 内航班</span>
+            <strong>{nearby.length === 0 ? '当前未获得记录' : nearby.length}</strong>
+            <span>200 km 内实时位置</span>
           </div>
           <div>
-            <strong>96%</strong>
-            <span>数据覆盖度</span>
+            <strong>{realtimeSources.length === 0 ? '未获得' : realtimeSources.length}</strong>
+            <span>实时位置来源</span>
           </div>
         </div>
         <div className="information-note">
           <b>实时空域观察</b>
-          <span>展示机场周边 ADS-B 实时位置，不代表机场到离港时刻。</span>
+          <span>周边航班不等同于到港或离港班次</span>
         </div>
         <div className="list-heading">
           <h3>周边实时航班</h3>
@@ -184,7 +185,7 @@ export function AirportExplorer({
         </div>
         <div className="flight-list">
           {nearby.length === 0 ? (
-            <p className="empty-copy">当前半径暂无实时航班</p>
+            <p className="empty-copy">当前未获得记录</p>
           ) : (
             nearby.slice(0, 4).map((flight) => (
               <button type="button" key={flight.id} onClick={() => onFlightSelect(flight)}>

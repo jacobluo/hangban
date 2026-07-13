@@ -52,7 +52,19 @@ export function SearchBox({
     };
   }, [query]);
   const results = useMemo(() => {
-    if (deferredQuery.length === 0) return { flights: [], airports: [] };
+    if (deferredQuery.length === 0) return { flights: [], airports: [], cities: [] };
+    const airportResults = (globalAirports ?? airports)
+      .filter((airport) =>
+        [
+          airport.iata ?? '',
+          airport.icao ?? '',
+          airport.name,
+          airport.city,
+          airport.localizedCity ?? '',
+        ].some((value) => value.toLocaleUpperCase().includes(deferredQuery)),
+      )
+      .slice(0, 4);
+    const seenCities = new Set<string>();
     return {
       flights: flights
         .filter((flight) =>
@@ -64,17 +76,14 @@ export function SearchBox({
           ].some((value) => value.toLocaleUpperCase().includes(deferredQuery)),
         )
         .slice(0, 4),
-      airports: (globalAirports ?? airports)
-        .filter((airport) =>
-          [
-            airport.iata ?? '',
-            airport.icao ?? '',
-            airport.name,
-            airport.city,
-            airport.localizedCity ?? '',
-          ].some((value) => value.toLocaleUpperCase().includes(deferredQuery)),
-        )
-        .slice(0, 4),
+      airports: airportResults,
+      cities: airportResults.filter((airport) => {
+        const city = airport.localizedCity ?? airport.city;
+        const matches = city.toLocaleUpperCase().includes(deferredQuery);
+        if (!matches || seenCities.has(city)) return false;
+        seenCities.add(city);
+        return true;
+      }),
     };
   }, [airports, deferredQuery, flights, globalAirports]);
   const open = query.trim().length > 0;
@@ -121,7 +130,11 @@ export function SearchBox({
               <button
                 className="mobile-status-trigger"
                 type="button"
-                aria-label="打开数据状态"
+                aria-label={
+                  statusDegraded
+                    ? '实时位置，部分覆盖，打开数据状态'
+                    : '实时位置，数据正常，打开数据状态'
+                }
                 onClick={onStatusOpen}
               >
                 <span className={statusDegraded ? 'status-dot delayed' : 'status-dot'} />
@@ -172,6 +185,24 @@ export function SearchBox({
               </span>
             </button>
           ))}
+          {results.cities.length > 0 ? <p className="result-label">城市</p> : null}
+          {results.cities.map((airport) => {
+            const city = airport.localizedCity ?? airport.city;
+            return (
+              <button
+                key={`city-${city}`}
+                type="button"
+                aria-label={`${city} 查看代表机场 ${airport.iata ?? airport.icao}`}
+                onClick={() => {
+                  onAirportSelect(airport);
+                  setQuery('');
+                }}
+              >
+                <strong>{city}</strong>
+                <span>查看该城市的机场与周边实时航班</span>
+              </button>
+            );
+          })}
         </div>
       ) : null}
     </div>

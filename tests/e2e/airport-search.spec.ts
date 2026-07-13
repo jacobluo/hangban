@@ -10,4 +10,5 @@ test('searches a global airport by Chinese city name outside the current list', 
   await result.click();
   await expect(page.getByRole('heading', { name: 'SZX' })).toBeVisible();
   await expect(page.getByText(/ZGSZ.*深圳.*CN/)).toBeVisible();
+  await expect(page.getByText('周边航班不等同于到港或离港班次')).toBeVisible();
 });

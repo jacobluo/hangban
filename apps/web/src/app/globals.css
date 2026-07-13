@@ -1,15 +1,35 @@
 :root {
-  --map-sky: #eaf2f8;
+  --canvas: #f4f7fa;
+  --ocean: #e9f0f6;
+  --land: #f8fafc;
   --surface: #ffffff;
-  --surface-muted: #f1f6fa;
   --ink: #102a43;
-  --ink-muted: #52677a;
-  --line: #c8d4de;
-  --blue: #0f62fe;
-  --orange: #ff6f3d;
-  --success: #198038;
-  --warning: #b26a00;
-  --radius: 6px;
+  --ink-muted: #627d98;
+  --border: #c9d5df;
+  --border-subtle: #dde6ed;
+  --action: #0f62fe;
+  --selected: #ff6f3d;
+  --healthy: #159947;
+  --warning: #b77900;
+  --critical: #c93737;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Compatibility aliases for existing components during the staged redesign. */
+  --map-sky: var(--ocean);
+  --surface-muted: var(--canvas);
+  --line: var(--border);
+  --blue: var(--action);
+  --orange: var(--selected);
+  --success: var(--healthy);
+  --radius: var(--radius-md);
   --panel-width: 360px;
   --topbar-height: 64px;
   color-scheme: light;
@@ -38,7 +58,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
 }
 .sr-only {
@@ -256,8 +276,8 @@ select:focus-visible {
 .map-tools button {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border: 0;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -322,10 +342,19 @@ select:focus-visible {
   background: var(--surface);
   box-shadow: 0 8px 24px rgb(16 42 67 / 10%);
   font-size: 11px;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
 }
 .system-notice.warning {
   border-color: #d6a238;
   background: #fff8df;
+}
+.system-notice.critical {
+  border-color: color-mix(in srgb, var(--critical) 45%, var(--border));
+  background: color-mix(in srgb, var(--critical) 7%, white);
+  color: var(--critical);
 }
 .system-notice.empty {
   top: 86px;
@@ -356,6 +385,26 @@ select:focus-visible {
   padding: 20px;
   background: var(--surface);
   border-left: 1px solid var(--line);
+  transition:
+    transform 200ms ease,
+    max-height 200ms ease,
+    box-shadow 180ms ease;
+}
+.drawer-state-toggle {
+  min-width: 36px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  margin: -10px auto 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.drawer-state-toggle:hover {
+  background: var(--surface-muted);
+  color: var(--action);
 }
 .panel-heading {
   height: 26px;
@@ -528,9 +577,15 @@ select:focus-visible {
 }
 .settings-actions {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 8px;
   margin-top: 18px;
+}
+.settings-actions output {
+  justify-self: end;
+  color: var(--ink-muted);
+  font-size: 11px;
 }
 .settings-actions .primary-button {
   margin: 0;
@@ -594,6 +649,15 @@ select:focus-visible {
   margin: 20px 0 10px;
   font-size: 12px;
 }
+.coverage-note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--action);
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
 .provider-list {
   display: grid;
   gap: 8px;
@@ -627,6 +691,27 @@ select:focus-visible {
 }
 .provider-row em {
   color: var(--warning);
+}
+.provider-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 10px;
+  margin: 6px 0;
+}
+.provider-details > div {
+  display: grid;
+  gap: 1px;
+}
+.provider-details > div:last-child {
+  grid-column: 1 / -1;
+}
+.provider-details dt {
+  color: var(--ink-muted);
+  font-size: 9px;
+}
+.provider-details dd {
+  margin: 0;
+  font-size: 10px;
 }
 .status-disclaimer {
   margin: 16px 0 0;
@@ -774,6 +859,9 @@ select:focus-visible {
   box-shadow: 0 12px 30px rgb(16 42 67 / 7%);
   max-height: calc(100dvh - 180px);
   overflow-y: auto;
+  transition:
+    transform 200ms ease,
+    opacity 180ms ease;
 }
 .explorer-title-row {
   min-height: 30px;
@@ -895,6 +983,11 @@ select:focus-visible {
 .information-note b {
   font-size: 11px;
 }
+.information-note h2,
+.information-note h3 {
+  margin: 0;
+  font-size: 11px;
+}
 .information-note span {
   color: var(--ink-muted);
   font-size: 9px;
@@ -961,9 +1054,22 @@ select:focus-visible {
 }
 .endpoint-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 36px 1fr;
+  align-items: center;
   gap: 10px;
   margin: 12px 0;
+}
+.endpoint-swap {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--action);
+  cursor: pointer;
 }
 .endpoint-slot {
   position: relative;
@@ -1087,6 +1193,18 @@ select:focus-visible {
   max-height: 260px;
   overflow: auto;
   padding: 6px;
+}
+.airport-picker-scope {
+  margin: 0;
+  padding: 8px 14px 2px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+.route-observed-at {
+  margin: 10px 0;
+  color: var(--ink-muted);
+  font-size: 9px;
 }
 .airport-option-list > button {
   width: 100%;
@@ -1478,7 +1596,8 @@ select:focus-visible {
   }
   .topbar {
     grid-template-columns: auto 1fr;
-    padding: 0 14px;
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-left: max(14px, env(safe-area-inset-left));
   }
   .brand strong {
     font-size: 19px;
@@ -1500,8 +1619,8 @@ select:focus-visible {
     min-height: calc(100dvh - var(--topbar-height));
   }
   .search-wrap {
-    left: 12px;
-    right: 12px;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
     top: 10px;
     width: auto;
   }
@@ -1533,6 +1652,9 @@ select:focus-visible {
     width: 44px;
     height: 44px;
   }
+  .map-tools button:nth-child(n + 3) {
+    display: none;
+  }
   .filter-summary,
   .map-message {
     left: 12px;
@@ -1560,13 +1682,19 @@ select:focus-visible {
     top: auto;
     left: 8px;
     right: 8px;
-    bottom: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
     width: auto;
     max-height: 48dvh;
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: 16px;
     box-shadow: 0 -12px 36px rgb(16 42 67 / 12%);
+  }
+  .detail-panel.drawer-half {
+    max-height: 48dvh;
+  }
+  .detail-panel.drawer-full {
+    max-height: calc(100dvh - 16px);
   }
   .detail-panel::before,
   .explorer-panel::before {
@@ -1604,7 +1732,7 @@ select:focus-visible {
   .metric-grid > div {
     min-height: 54px;
   }
-  .source-note {
+  .drawer-half .source-note {
     display: none;
   }
   .airport-list {
@@ -1720,7 +1848,10 @@ select:focus-visible {
   }
   .settings-panel,
   .data-status-panel {
-    max-height: calc(100dvh - 92px);
+    top: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    max-height: none;
+    border-radius: var(--radius-lg);
   }
   .full-detail-page {
     inset: 0;
@@ -1800,5 +1931,6 @@ select:focus-visible {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

@@ -215,6 +215,8 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
 
       <section
         className="map-stage"
+        role="main"
+        aria-label="全球实时航班地图"
         aria-hidden={fullDetailOpen}
         inert={fullDetailOpen ? true : undefined}
       >
@@ -263,6 +265,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
           totalFlights={flights.length}
           visibleFlights={view === 'routes' ? flights.length : filteredFlights.length}
           filtersActive={filtersActive}
+          sourceStatuses={sourceStatuses}
           onRetry={retry}
           onClearFilters={clearFilters}
         />
@@ -348,7 +351,6 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             onApply={(nextFilters, nextLayers) => {
               setFilters(nextFilters);
               setMapLayers(nextLayers);
-              setLayerPanelOpen(false);
             }}
           />
         ) : null}

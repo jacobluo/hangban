@@ -40,6 +40,16 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
   );
   const resultCount = filterFlights(flights, draftFilters).length;
 
+  const applyFilters = (next: FlightFilters) => {
+    setDraftFilters(next);
+    onApply(next, draftLayers);
+  };
+
+  const applyLayers = (next: MapLayers) => {
+    setDraftLayers(next);
+    onApply(draftFilters, next);
+  };
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -49,12 +59,12 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
   }, [onClose]);
 
   const toggleFreshness = (value: Flight['freshness']) => {
-    setDraftFilters((current) => ({
-      ...current,
-      freshness: current.freshness.includes(value)
-        ? current.freshness.filter((item) => item !== value)
-        : [...current.freshness, value],
-    }));
+    applyFilters({
+      ...draftFilters,
+      freshness: draftFilters.freshness.includes(value)
+        ? draftFilters.freshness.filter((item) => item !== value)
+        : [...draftFilters.freshness, value],
+    });
   };
 
   return (
@@ -66,7 +76,13 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
     >
       <div className="panel-heading settings-heading">
         <h2 id="layer-panel-title">筛选与图层</h2>
-        <button className="icon-button" type="button" aria-label="关闭筛选与图层" onClick={onClose}>
+        <button
+          className="icon-button"
+          type="button"
+          aria-label="关闭筛选与图层"
+          autoFocus
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </div>
@@ -80,10 +96,10 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
               type="checkbox"
               checked={draftLayers[option.key]}
               onChange={(event) =>
-                setDraftLayers((current) => ({
-                  ...current,
+                applyLayers({
+                  ...draftLayers,
                   [option.key]: event.target.checked,
-                }))
+                })
               }
             />
           </label>
@@ -108,10 +124,10 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
             value={draftFilters.maxAltitudeM}
             aria-label="最大高度"
             onChange={(event) =>
-              setDraftFilters((current) => ({
-                ...current,
+              applyFilters({
+                ...draftFilters,
                 maxAltitudeM: Number(event.target.value),
-              }))
+              })
             }
           />
         </label>
@@ -134,9 +150,7 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
           <select
             aria-label="航空公司"
             value={draftFilters.airline}
-            onChange={(event) =>
-              setDraftFilters((current) => ({ ...current, airline: event.target.value }))
-            }
+            onChange={(event) => applyFilters({ ...draftFilters, airline: event.target.value })}
           >
             <option value="">全部航空公司</option>
             {airlines.map((airline) => (
@@ -154,23 +168,18 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
           type="button"
           aria-label="重置筛选"
           onClick={() => {
-            setDraftFilters({
+            const nextFilters = {
               ...defaultFlightFilters,
               freshness: [...defaultFlightFilters.freshness],
-            });
+            };
+            setDraftFilters(nextFilters);
             setDraftLayers(defaultMapLayers);
+            onApply(nextFilters, defaultMapLayers);
           }}
         >
           重置
         </button>
-        <button
-          className="primary-button"
-          type="button"
-          aria-label={`应用筛选，显示 ${resultCount} 架航班`}
-          onClick={() => onApply(draftFilters, draftLayers)}
-        >
-          显示 {resultCount} 架航班
-        </button>
+        <output aria-live="polite">当前显示 {resultCount} 架航班</output>
       </div>
     </aside>
   );

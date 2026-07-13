@@ -1,4 +1,5 @@
-import { Star, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useState } from 'react';
 
 import type { Flight } from '@hangban/contracts';
 
@@ -9,8 +10,27 @@ function metric(value: number | null, unit: string) {
 }
 
 export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
+  const [drawerState, setDrawerState] = useState<'half' | 'full'>('half');
+  const inferredRoute =
+    flight.inferredFields.includes('origin') || flight.inferredFields.includes('destination');
+  const sources = [
+    ...new Set([...flight.sources, ...flight.fieldSources.map((source) => source.providerId)]),
+  ];
+
   return (
-    <aside className="detail-panel flight-detail" aria-label="航班详情">
+    <aside
+      className={`detail-panel flight-detail drawer-${drawerState}`}
+      aria-label="航班详情"
+      data-drawer-state={drawerState}
+    >
+      <button
+        className="drawer-state-toggle"
+        type="button"
+        aria-label={drawerState === 'half' ? '展开航班详情抽屉' : '收起航班详情抽屉'}
+        onClick={() => setDrawerState((current) => (current === 'half' ? 'full' : 'half'))}
+      >
+        {drawerState === 'half' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+      </button>
       <div className="panel-heading">
         <span>航班详情</span>
         <button className="icon-button" type="button" aria-label="关闭航班详情" onClick={onClose}>
@@ -19,7 +39,6 @@ export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
       </div>
       <div className="flight-title-row">
         <h1>{flight.callsign}</h1>
-        <Star aria-label="收藏功能暂未开放" size={21} />
         <span className="status-chip">飞行中</span>
       </div>
       <h2>{flight.airline ?? '航空公司未知'}</h2>
@@ -41,9 +60,9 @@ export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
           <span>目的地</span>
         </div>
       </div>
-      {flight.inferredFields.includes('origin') || flight.inferredFields.includes('destination') ? (
+      {inferredRoute ? (
         <div className="information-note inferred-route">
-          <b>公开路线信息推断</b>
+          <h3>路线推断</h3>
           <span>起终点并非官方飞行计划，可能随呼号复用而变化。</span>
         </div>
       ) : null}
@@ -69,15 +88,8 @@ export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
       </div>
 
       <div className="source-note">
-        <span>融合来源</span>
-        <strong>
-          {[
-            ...new Set([
-              ...flight.sources,
-              ...flight.fieldSources.map((source) => source.providerId),
-            ]),
-          ].join(' · ')}
-        </strong>
+        <span>数据来源</span>
+        <strong>{sources.join(' · ')}</strong>
         <span>覆盖度 {Math.round(flight.confidence * 100)}%</span>
       </div>
       <button
