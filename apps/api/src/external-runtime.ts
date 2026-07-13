@@ -10,7 +10,7 @@ import {
   subscribeChanges,
 } from '@hangban/realtime-store';
 
-import { buildApp } from './app';
+import { buildApp, createConfiguredWeatherRadarService } from './app';
 import { createMemoryRepository } from './memory-repository';
 
 const WORLD: Bbox = [-180, -90, 180, 90];
@@ -36,6 +36,7 @@ export async function createExternalApiRuntime(
   if (config.dataMode !== 'live' || !config.databaseUrl || !config.redisUrl) {
     throw new Error('EXTERNAL_STORES_REQUIRED');
   }
+  const weatherRadarService = createConfiguredWeatherRadarService(config);
   const pool = createPostgresPool({
     connectionString: config.databaseUrl,
     max: config.databasePoolMax,
@@ -89,6 +90,7 @@ export async function createExternalApiRuntime(
       realtimeAvailable: () => connections.command.isReady,
       logger,
       webOrigin: config.webOrigin,
+      weatherRadarService,
     });
     app.addHook('onClose', async () => {
       await unsubscribe();
@@ -96,6 +98,7 @@ export async function createExternalApiRuntime(
     });
     return { app, repository, airportStore, flightStore };
   } catch (error) {
+    weatherRadarService.clear();
     await Promise.allSettled([pool.end(), connections.close()]);
     throw error;
   }
