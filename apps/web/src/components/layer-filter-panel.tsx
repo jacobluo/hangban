@@ -21,6 +21,7 @@ const layerOptions: Array<{ key: keyof MapLayers; label: string }> = [
   { key: 'airports', label: '机场与代码' },
   { key: 'tracks', label: '最近 15 分钟航迹' },
   { key: 'labels', label: '地图标签' },
+  { key: 'weatherRadar', label: '天气雷达' },
 ];
 
 const freshnessOptions: Array<{ value: Flight['freshness']; label: string }> = [
@@ -29,7 +30,14 @@ const freshnessOptions: Array<{ value: Flight['freshness']; label: string }> = [
   { value: 'stale', label: '过期' },
 ];
 
-export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }: Props) {
+export function LayerFilterPanel({
+  flights,
+  filters,
+  layers,
+  weatherRadarLoading,
+  onApply,
+  onClose,
+}: Props) {
   const [draftFilters, setDraftFilters] = useState<FlightFilters>(() => ({
     ...filters,
     freshness: [...filters.freshness],
@@ -91,11 +99,18 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
       <fieldset className="settings-group">
         <legend>地图图层</legend>
         {layerOptions.map((option) => (
-          <label className="switch-row" key={option.key}>
+          <label
+            className={`switch-row${option.key === 'weatherRadar' && weatherRadarLoading ? ' disabled-row' : ''}`}
+            key={option.key}
+          >
             <span>{option.label}</span>
             <input
               type="checkbox"
               checked={draftLayers[option.key]}
+              disabled={option.key === 'weatherRadar' && weatherRadarLoading}
+              aria-label={
+                option.key === 'weatherRadar' && weatherRadarLoading ? '天气雷达加载中' : undefined
+              }
               onChange={(event) =>
                 applyLayers({
                   ...draftLayers,
@@ -105,10 +120,6 @@ export function LayerFilterPanel({ flights, filters, layers, onApply, onClose }:
             />
           </label>
         ))}
-        <label className="switch-row disabled-row">
-          <span>天气雷达</span>
-          <input type="checkbox" disabled aria-label="天气雷达，当前不可用" />
-        </label>
       </fieldset>
 
       <fieldset className="settings-group filter-settings">

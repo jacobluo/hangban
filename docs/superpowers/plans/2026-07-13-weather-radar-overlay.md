@@ -1003,6 +1003,7 @@ git commit -m "feat: manage weather radar state"
 - Create: `apps/web/src/lib/weather-radar-layer.test.ts`
 - Create: `apps/web/src/components/weather-radar-legend.tsx`
 - Create: `apps/web/src/components/weather-radar-legend.test.tsx`
+- Modify: `apps/web/src/components/app-shell.tsx`
 - Modify: `apps/web/src/components/flight-map.tsx`
 - Modify: `apps/web/src/components/layer-filter-panel.tsx`
 - Modify: `apps/web/src/components/app-shell.test.tsx`
@@ -1013,12 +1014,12 @@ git commit -m "feat: manage weather radar state"
 - Consumes: `WeatherRadarAvailableStatus`、绝对 `tileTemplate`、`MapLayers.weatherRadar`。
 - Produces: MapLibre source `weather-radar`、layer `weather-radar-raster`、`WeatherRadarLegend`。
 
-- [ ] **Step 1: 写 MapLibre 同步失败测试**
+- [x] **Step 1: 写 MapLibre 同步失败测试**
 
 创建 `apps/web/src/lib/weather-radar-layer.test.ts`，使用最小 fake map 验证：
 
 ```ts
-it('adds radar below airports and lowers opacity for historical cache', () => {
+it('adds radar below routes and lowers opacity for historical cache', () => {
   const map = fakeMap();
   syncWeatherRadarLayer(map, historicalRadar(), absoluteTileTemplate());
   expect(map.addSource).toHaveBeenCalledWith('weather-radar', {
@@ -1031,20 +1032,20 @@ it('adds radar below airports and lowers opacity for historical cache', () => {
     expect.objectContaining({
       id: 'weather-radar-raster',
       type: 'raster',
-      paint: { 'raster-opacity': 0.32, 'raster-fade-duration': 0 },
+      paint: { 'raster-opacity': 0.35, 'raster-fade-duration': 0 },
     }),
-    'airport-points',
+    'planned-route',
   );
 });
 ```
 
-- [ ] **Step 2: 运行图层测试并确认失败**
+- [x] **Step 2: 运行图层测试并确认失败**
 
 Run: `pnpm exec vitest run apps/web/src/lib/weather-radar-layer.test.ts`
 
 Expected: FAIL，提示找不到图层模块。
 
-- [ ] **Step 3: 实现 MapLibre 图层同步**
+- [x] **Step 3: 实现 MapLibre 图层同步**
 
 导出：
 
@@ -1061,15 +1062,15 @@ export function syncWeatherRadarLayer(
 ```text
 radar 或 tileTemplate 为 null：删除 weather-radar-raster，再删除 weather-radar source
 source 不存在：添加 raster source，tileSize=512，maxzoom=7
-layer 不存在：在 airport-points 之前添加 raster layer
+layer 不存在：优先在 planned-route 之前添加 raster layer；没有航迹锚点时回退到 airport-points 之前
 latest/delayed opacity=0.55
-historical-cache opacity=0.32
+historical-cache opacity=0.35
 frame 或模板变化：删除旧 layer/source 后按新模板重建
 ```
 
 不要删除或重建整个地图实例。
 
-- [ ] **Step 4: 写图例失败测试**
+- [x] **Step 4: 写图例失败测试**
 
 创建 `apps/web/src/components/weather-radar-legend.test.tsx`：
 
@@ -1084,7 +1085,7 @@ it('marks historical cache as non-current weather and exposes attribution', () =
 });
 ```
 
-- [ ] **Step 5: 实现紧凑图例**
+- [x] **Step 5: 实现紧凑图例**
 
 `WeatherRadarLegend` 接受：
 
@@ -1105,7 +1106,7 @@ historical-cache：非当前天气 · X 小时前
 
 图例包含五段连续色标、弱/中/强标签和 `target="_blank" rel="noreferrer"` 的 RainViewer 链接。
 
-- [ ] **Step 6: 接入 FlightMap**
+- [x] **Step 6: 接入 FlightMap**
 
 给 `FlightMap` 增加 props：
 
@@ -1126,7 +1127,7 @@ weatherRadarTileTemplate: string | null;
 
 如果 `FlightMap` 不应知道 `playbackMinutes`，则由 `AppShell` 在 `FlightMap` 同级渲染图例，并将 `playbackMinutes > 0` 传给图例；保持 `FlightMap` 只负责 MapLibre。
 
-- [ ] **Step 7: 启用图层面板开关**
+- [x] **Step 7: 启用图层面板开关**
 
 把天气雷达加入 `layerOptions`：
 
@@ -1136,7 +1137,7 @@ weatherRadarTileTemplate: string | null;
 
 删除原有禁用项。`weatherRadarLoading=true` 时对应开关禁用并显示「天气雷达加载中」可访问名称；其他图层开关不受影响。
 
-- [ ] **Step 8: 同步已确认样式**
+- [x] **Step 8: 同步已确认样式**
 
 在 `globals.css` 增加 `.weather-radar-legend`、`.weather-radar-scale` 和 `.weather-radar-attribution`。要求：
 
@@ -1148,13 +1149,13 @@ playbackActive 时通过修饰类上移
 历史缓存文案具有高于普通辅助文本的对比度
 ```
 
-- [ ] **Step 9: 运行组件、图层和类型测试**
+- [x] **Step 9: 运行组件、图层和类型测试**
 
 Run: `pnpm exec vitest run apps/web/src/lib/weather-radar-layer.test.ts apps/web/src/components/weather-radar-legend.test.tsx apps/web/src/components/app-shell.test.tsx && pnpm --filter @hangban/web typecheck`
 
 Expected: PASS。
 
-- [ ] **Step 10: 提交地图和图例**
+- [x] **Step 10: 提交地图和图例**
 
 ```bash
 git add apps/web/src/lib/weather-radar-layer.ts apps/web/src/lib/weather-radar-layer.test.ts apps/web/src/components/weather-radar-legend.tsx apps/web/src/components/weather-radar-legend.test.tsx apps/web/src/components/flight-map.tsx apps/web/src/components/layer-filter-panel.tsx apps/web/src/components/app-shell.test.tsx apps/web/src/app/globals.css

@@ -177,6 +177,18 @@ describe('AppShell', () => {
     expect(screen.queryByText('已显示 2 / 8 架航班')).not.toBeInTheDocument();
   });
 
+  it('enables the weather switch and disables only it while loading', async () => {
+    weatherRadarState.loading = true;
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('button', { name: '打开图层与筛选' }));
+
+    expect(screen.getByRole('checkbox', { name: '天气雷达加载中' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: '航空底图' })).toBeEnabled();
+    expect(screen.getByRole('checkbox', { name: '实时航班' })).toBeEnabled();
+  });
+
   it('opens source health as a full page and returns to the preserved map context', async () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);

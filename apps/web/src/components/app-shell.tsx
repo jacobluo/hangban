@@ -26,6 +26,7 @@ import { PlaybackControl } from './playback-control';
 import { RouteExplorer } from './route-explorer';
 import { SearchBox } from './search-box';
 import { SystemNotice } from './system-notice';
+import { WeatherRadarLegend } from './weather-radar-legend';
 
 type View = 'live' | 'airports' | 'routes';
 
@@ -272,6 +273,9 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
               airportState.updateViewport(bbox);
             }}
           />
+          {mapLayers.weatherRadar && weatherRadar.radar !== null ? (
+            <WeatherRadarLegend radar={weatherRadar.radar} playbackActive={playbackMinutes > 0} />
+          ) : null}
           <SearchBox
             airports={airportState.airports}
             flights={flights}

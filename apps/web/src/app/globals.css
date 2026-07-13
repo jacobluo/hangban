@@ -294,6 +294,84 @@ select:focus-visible {
   color: var(--blue);
   background: #eaf1ff;
 }
+.weather-radar-legend {
+  position: absolute;
+  z-index: 8;
+  left: 20px;
+  bottom: 84px;
+  width: 240px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 8px 24px rgb(16 42 67 / 14%);
+  color: var(--ink);
+  font-size: 10px;
+  transition: bottom 180ms ease;
+}
+.weather-radar-legend--playback-active {
+  bottom: 150px;
+}
+.weather-radar-legend header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.weather-radar-legend header strong {
+  font-size: 12px;
+}
+.weather-radar-legend header span {
+  color: var(--success);
+  font-weight: 700;
+}
+.weather-radar-legend--historical header span {
+  color: var(--ink);
+}
+.weather-radar-scale__bar {
+  height: 9px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  overflow: hidden;
+  border-radius: 5px;
+}
+.weather-radar-scale__bar i:nth-child(1) {
+  background: #24b8d9;
+}
+.weather-radar-scale__bar i:nth-child(2) {
+  background: #2cbf78;
+}
+.weather-radar-scale__bar i:nth-child(3) {
+  background: #9ecb38;
+}
+.weather-radar-scale__bar i:nth-child(4) {
+  background: #f3c515;
+}
+.weather-radar-scale__bar i:nth-child(5) {
+  background: #e84846;
+}
+.weather-radar-scale__labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  color: var(--ink-muted);
+  font-size: 9px;
+}
+.weather-radar-attribution {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--blue);
+  font:
+    9px ui-monospace,
+    monospace;
+  text-decoration: none;
+}
+.weather-radar-attribution:hover,
+.weather-radar-attribution:focus-visible {
+  text-decoration: underline;
+}
 .filter-summary,
 .map-message {
   position: absolute;
@@ -1770,6 +1848,15 @@ select:focus-visible {
   }
   .map-tools button:nth-child(n + 3) {
     display: none;
+  }
+  .weather-radar-legend,
+  .weather-radar-legend--playback-active {
+    top: 84px;
+    right: 78px;
+    bottom: auto;
+    left: 12px;
+    width: auto;
+    max-width: 228px;
   }
   .filter-summary,
   .map-message {
