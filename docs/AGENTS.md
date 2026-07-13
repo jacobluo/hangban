@@ -21,6 +21,7 @@
 - [`superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md`](superpowers/specs/2026-07-12-aero-chart-visual-deepening-design.md)：全部核心页面的浅色航空图表视觉深化规格、响应式规则和 Ardot 执行边界。
 - [`superpowers/plans/2026-07-12-aero-chart-visual-deepening.md`](superpowers/plans/2026-07-12-aero-chart-visual-deepening.md)：Ardot 深化、前端同步、视觉核对和验证门禁的实施步骤。
 - [`superpowers/specs/2026-07-13-desktop-data-status-page-design.md`](superpowers/specs/2026-07-13-desktop-data-status-page-design.md)：修复 PC 实时状态入口误用右侧栏的问题，明确桌面整页与手机全高页面规则。
+- [`superpowers/plans/2026-07-13-desktop-data-status-page.md`](superpowers/plans/2026-07-13-desktop-data-status-page.md)：桌面数据状态整页、手机全高页面、响应式回归和视觉验收的实施步骤。
 
 ## 状态说明
 
