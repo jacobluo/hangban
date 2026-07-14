@@ -26,7 +26,7 @@ export function WeatherRadarLegend({ radar, playbackActive }: Props) {
       aria-label="天气雷达图例"
     >
       <header>
-        <strong>天气雷达</strong>
+        <strong>天气雷达降水图</strong>
         <span>
           {historical ? (
             historicalStatusText(radar)

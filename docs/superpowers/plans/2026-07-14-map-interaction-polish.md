@@ -233,7 +233,7 @@ git commit -m "fix: prevent route airport picker clipping"
 - Consumes: `WeatherRadarLegend` 现有雷达状态
 - Produces: 可见标题「天气雷达降水图」
 
-- [ ] **Step 1: 写失败的标题测试**
+- [x] **Step 1: 写失败的标题测试**
 
 ```tsx
 render(<WeatherRadarLegend radar={radar('latest')} playbackActive={false} />);
@@ -241,13 +241,13 @@ expect(screen.getByText('天气雷达降水图')).toBeVisible();
 expect(screen.getByLabelText('天气雷达图例')).toBeVisible();
 ```
 
-- [ ] **Step 2: 运行测试并确认按预期失败**
+- [x] **Step 2: 运行测试并确认按预期失败**
 
 Run: `pnpm vitest run apps/web/src/components/weather-radar-legend.test.tsx`
 
 Expected: FAIL，找不到「天气雷达降水图」。
 
-- [ ] **Step 3: 修改可见标题**
+- [x] **Step 3: 修改可见标题**
 
 ```tsx
 <strong>天气雷达降水图</strong>
@@ -255,7 +255,7 @@ Expected: FAIL，找不到「天气雷达降水图」。
 
 不修改图例 `aria-label`、图层选项和错误文案。
 
-- [ ] **Step 4: 运行聚焦测试**
+- [x] **Step 4: 运行聚焦测试**
 
 Run: `pnpm vitest run apps/web/src/components/weather-radar-legend.test.tsx`
 

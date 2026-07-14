@@ -62,6 +62,8 @@ describe('WeatherRadarLegend', () => {
       <WeatherRadarLegend radar={radar('latest')} playbackActive={false} />,
     );
     const latestTime = screen.getByText('16:00 GMT+8');
+    expect(screen.getByText('天气雷达降水图')).toBeVisible();
+    expect(screen.getByLabelText('天气雷达图例')).toBeVisible();
     expect(latestTime.parentElement).toHaveTextContent('最新 · 16:00 GMT+8');
 
     rerender(<WeatherRadarLegend radar={radar('delayed')} playbackActive />);
