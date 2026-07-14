@@ -319,20 +319,53 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
           paint: { 'line-color': '#ff6f3d', 'line-width': 3 },
         });
         map.addLayer({
+          id: 'airport-selection-halo',
+          type: 'circle',
+          source: 'airports',
+          filter: ['==', ['get', 'selected'], 1],
+          paint: {
+            'circle-radius': 18,
+            'circle-color': '#ff6f3d',
+            'circle-opacity': 0.14,
+            'circle-stroke-color': '#ff6f3d',
+            'circle-stroke-width': 1.5,
+            'circle-stroke-opacity': 0.5,
+          },
+        });
+        map.addLayer({
           id: 'airport-points',
           type: 'circle',
           source: 'airports',
           paint: {
-            'circle-radius': ['case', ['==', ['get', 'selected'], 1], 7, 4],
-            'circle-color': '#ffffff',
-            'circle-stroke-color': '#0f62fe',
+            'circle-radius': ['case', ['==', ['get', 'selected'], 1], 9, 4],
+            'circle-color': [
+              'case',
+              ['==', ['get', 'selected'], 1],
+              '#ff6f3d',
+              '#ffffff',
+            ],
+            'circle-stroke-color': [
+              'case',
+              ['==', ['get', 'selected'], 1],
+              '#ffffff',
+              '#0f62fe',
+            ],
             'circle-stroke-width': 2,
           },
+        });
+        map.addLayer({
+          id: 'airport-selected-label',
+          type: 'symbol',
+          source: 'airports',
+          filter: ['==', ['get', 'selected'], 1],
+          layout: { 'text-field': ['get', 'code'], 'text-size': 11, 'text-offset': [0, 1.75] },
+          paint: { 'text-color': '#ff6f3d', 'text-halo-color': '#ffffff', 'text-halo-width': 2 },
         });
         map.addLayer({
           id: 'airport-labels',
           type: 'symbol',
           source: 'airports',
+          filter: ['!=', ['get', 'selected'], 1],
           minzoom: 2.4,
           layout: { 'text-field': ['get', 'code'], 'text-size': 11, 'text-offset': [0, 1.35] },
           paint: { 'text-color': '#102a43', 'text-halo-color': '#ffffff', 'text-halo-width': 2 },
@@ -394,7 +427,13 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
         setLayerVisibility(map, 'flight-selection-halo', currentLayers.flights);
         setLayerVisibility(map, 'flight-points', currentLayers.flights);
         setLayerVisibility(map, 'flight-labels', currentLayers.flights && currentLayers.labels);
+        setLayerVisibility(map, 'airport-selection-halo', currentLayers.airports);
         setLayerVisibility(map, 'airport-points', currentLayers.airports);
+        setLayerVisibility(
+          map,
+          'airport-selected-label',
+          currentLayers.airports && currentLayers.labels,
+        );
         setLayerVisibility(map, 'airport-labels', currentLayers.airports && currentLayers.labels);
         setLayerVisibility(map, 'planned-route', currentLayers.tracks);
         setLayerVisibility(map, 'flown-route', currentLayers.tracks);
@@ -471,7 +510,9 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
     setLayerVisibility(map, 'flight-selection-halo', layers.flights);
     setLayerVisibility(map, 'flight-points', layers.flights);
     setLayerVisibility(map, 'flight-labels', layers.flights && layers.labels);
+    setLayerVisibility(map, 'airport-selection-halo', layers.airports);
     setLayerVisibility(map, 'airport-points', layers.airports);
+    setLayerVisibility(map, 'airport-selected-label', layers.airports && layers.labels);
     setLayerVisibility(map, 'airport-labels', layers.airports && layers.labels);
     setLayerVisibility(
       map,
