@@ -365,6 +365,31 @@ describe('AppShell', () => {
     expect(screen.getByRole('heading', { name: 'PEK' })).toBeVisible();
   });
 
+  it('returns from a nearby flight to the originating airport with back or close', async () => {
+    const user = userEvent.setup();
+    render(<AppShell initialData={demoData} mapEnabled={false} />);
+
+    await user.click(screen.getByRole('tab', { name: '机场' }));
+    const airportOverview = screen.getByRole('complementary', { name: '机场概览' });
+    await user.click(within(airportOverview).getByRole('button', { name: /MU5102/ }));
+
+    expect(screen.getByRole('tab', { name: '全球实时' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('button', { name: '返回 PEK 周边航班' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '返回 PEK 周边航班' }));
+    expect(screen.getByRole('tab', { name: '机场' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('heading', { name: 'PEK' })).toBeVisible();
+
+    await user.click(
+      within(screen.getByRole('complementary', { name: '机场概览' })).getByRole('button', {
+        name: /MU5102/,
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: '关闭航班详情' }));
+    expect(screen.getByRole('tab', { name: '机场' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('heading', { name: 'PEK' })).toBeVisible();
+  });
+
   it('reselects route endpoints and renders an honest empty result', async () => {
     const user = userEvent.setup();
     render(<AppShell initialData={demoData} mapEnabled={false} />);

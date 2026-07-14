@@ -261,7 +261,7 @@ Run: `pnpm vitest run apps/web/src/components/weather-radar-legend.test.tsx`
 
 Expected: PASS。
 
-- [ ] **Step 5: 提交标题调整**
+- [x] **Step 5: 提交标题调整**
 
 ```bash
 git add apps/web/src/components/weather-radar-legend.tsx apps/web/src/components/weather-radar-legend.test.tsx
@@ -281,7 +281,7 @@ git commit -m "fix: clarify weather radar legend title"
 - Consumes: `AirportExplorer.onFlightSelect(flight)` 和当前 `selectedAirport`
 - Produces: `FlightPanel.returnLabel?: string`、`FlightPanel.onReturn?: () => void` 与机场上下文恢复行为
 
-- [ ] **Step 1: 写失败的组件回归测试**
+- [x] **Step 1: 写失败的组件回归测试**
 
 从机场页选择 PEK，再点击一个周边航班，断言上下文动作存在并可恢复：
 
@@ -297,13 +297,13 @@ expect(screen.getByText('周边实时航班')).toBeVisible();
 
 另一个测试重新进入航班详情并点击「关闭航班详情」，断言同样恢复 PEK。现有全局搜索航班测试继续断言关闭后不出现机场上下文动作。
 
-- [ ] **Step 2: 运行测试并确认按预期失败**
+- [x] **Step 2: 运行测试并确认按预期失败**
 
 Run: `pnpm vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，缺少「返回 PEK 周边航班」。
 
-- [ ] **Step 3: 扩展航班摘要接口**
+- [x] **Step 3: 扩展航班摘要接口**
 
 把 `FlightPanel` 属性改为：
 
@@ -327,7 +327,7 @@ type Props = {
 
 导入 `ArrowLeft`，并为按钮增加清晰的悬停、键盘焦点和手机端 44 px 触控样式。
 
-- [ ] **Step 4: 在 AppShell 记录和恢复上下文**
+- [x] **Step 4: 在 AppShell 记录和恢复上下文**
 
 新增：
 
@@ -347,17 +347,17 @@ onClose={returnFromFlight}
 
 顶部页面切换、`chooseAirport` 和非机场入口选择航班时清除 `flightReturnAirport`。
 
-- [ ] **Step 5: 运行组件测试**
+- [x] **Step 5: 运行组件测试**
 
 Run: `pnpm vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: PASS，包括返回动作、关闭动作和无上下文入口。
 
-- [ ] **Step 6: 增加 Playwright 机场往返测试**
+- [x] **Step 6: 增加 Playwright 机场往返测试**
 
 在 `tests/e2e/airport-route.spec.ts` 增加桌面与手机共用流程：搜索或选择 PEK、点击周边 CA981、确认航班详情、点击「返回 PEK 周边航班」、确认 PEK 与周边航班列表恢复。再次进入后点击「关闭航班详情」，确认结果相同。
 
-- [ ] **Step 7: 运行 E2E 聚焦测试**
+- [x] **Step 7: 运行 E2E 聚焦测试**
 
 Run: `pnpm exec playwright test tests/e2e/airport-route.spec.ts`
 

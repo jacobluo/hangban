@@ -496,6 +496,22 @@ select:focus-visible {
 .mobile-back {
   display: none;
 }
+.context-back {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--action);
+  font: inherit;
+  cursor: pointer;
+}
+.context-back:hover,
+.context-back:focus-visible {
+  text-decoration: underline;
+}
 .panel-heading em {
   color: var(--success);
   font:
@@ -2015,6 +2031,9 @@ select:focus-visible {
   .primary-button,
   .secondary-button,
   .filter-row button {
+    min-height: 44px;
+  }
+  .context-back {
     min-height: 44px;
   }
   .flight-title-row {

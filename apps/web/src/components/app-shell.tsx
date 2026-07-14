@@ -52,6 +52,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
     initialData.airports.find((airport) => airport.iata === 'JFK') ?? null,
   );
   const [mobileAirportDetailOpen, setMobileAirportDetailOpen] = useState(false);
+  const [flightReturnAirport, setFlightReturnAirport] = useState<Airport | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
   const [statusPageOpen, setStatusPageOpen] = useState(false);
   const [fullDetailOpen, setFullDetailOpen] = useState(false);
@@ -138,17 +139,33 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
     [mapFlights, playbackMinutes],
   );
 
-  const chooseFlight = (flight: Flight) => {
+  const openFlight = (flight: Flight, returnAirport: Airport | null) => {
+    setFlightReturnAirport(returnAirport);
     setSelectedFlight(flight);
     setView('live');
     setFullDetailOpen(false);
     setLayerPanelOpen(false);
     mapRef.current?.flyTo(flight.longitude, flight.latitude);
   };
+  const chooseFlight = (flight: Flight) => openFlight(flight, null);
+  const chooseNearbyFlight = (flight: Flight) => openFlight(flight, selectedAirport);
+  const returnFromFlight = () => {
+    const airport = flightReturnAirport;
+    setSelectedFlight(null);
+    setFlightReturnAirport(null);
+    if (airport === null) return;
+    airportChosenRef.current = true;
+    setSelectedAirport(airport);
+    setView('airports');
+    setMobileAirportDetailOpen(true);
+    setFullDetailOpen(false);
+    mapRef.current?.flyTo(airport.longitude, airport.latitude, 7);
+  };
   const chooseAirport = (airport: Airport) => {
     airportChosenRef.current = true;
     setSelectedAirport(airport);
     setSelectedFlight(null);
+    setFlightReturnAirport(null);
     setView('airports');
     setMobileAirportDetailOpen(true);
     setLayerPanelOpen(false);
@@ -209,6 +226,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
               setView('live');
               setFullDetailOpen(false);
               setLayerPanelOpen(false);
+              setFlightReturnAirport(null);
             }}
           >
             全球实时
@@ -220,6 +238,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             onClick={() => {
               setView('airports');
               setSelectedFlight(null);
+              setFlightReturnAirport(null);
               setMobileAirportDetailOpen(false);
               setLayerPanelOpen(false);
               setFullDetailOpen(false);
@@ -234,6 +253,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
             onClick={() => {
               setView('routes');
               setSelectedFlight(null);
+              setFlightReturnAirport(null);
               setLayerPanelOpen(false);
               setFullDetailOpen(false);
             }}
@@ -344,7 +364,7 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
               flights={filteredFlights}
               selected={selectedAirport}
               onSelect={chooseAirport}
-              onFlightSelect={chooseFlight}
+              onFlightSelect={chooseNearbyFlight}
               mobileDetailOpen={mobileAirportDetailOpen}
               onMobileBack={() => setMobileAirportDetailOpen(false)}
               total={airportState.total}
@@ -382,7 +402,13 @@ export function AppShell({ initialData, mapEnabled = true }: Props) {
           {view === 'live' && visibleFlight !== null ? (
             <FlightPanel
               flight={visibleFlight}
-              onClose={() => setSelectedFlight(null)}
+              returnLabel={
+                flightReturnAirport === null
+                  ? undefined
+                  : `返回 ${flightReturnAirport.iata ?? flightReturnAirport.icao} 周边航班`
+              }
+              onReturn={flightReturnAirport === null ? undefined : returnFromFlight}
+              onClose={returnFromFlight}
               onOpenDetails={() => {
                 setLayerPanelOpen(false);
                 setFullDetailOpen(true);

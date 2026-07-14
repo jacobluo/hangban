@@ -1,17 +1,23 @@
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState } from 'react';
 
 import type { Flight } from '@hangban/contracts';
 
 import { BrowserTime } from './browser-time';
 
-type Props = { flight: Flight; onClose: () => void; onOpenDetails: () => void };
+type Props = {
+  flight: Flight;
+  onClose: () => void;
+  onOpenDetails: () => void;
+  returnLabel?: string | undefined;
+  onReturn?: (() => void) | undefined;
+};
 
 function metric(value: number | null, unit: string) {
   return value === null ? '未获得数据' : `${value.toLocaleString('zh-CN')} ${unit}`;
 }
 
-export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
+export function FlightPanel({ flight, onClose, onOpenDetails, returnLabel, onReturn }: Props) {
   const [drawerState, setDrawerState] = useState<'half' | 'full'>('half');
   const inferredRoute =
     flight.inferredFields.includes('origin') || flight.inferredFields.includes('destination');
@@ -34,7 +40,14 @@ export function FlightPanel({ flight, onClose, onOpenDetails }: Props) {
         {drawerState === 'half' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </button>
       <div className="panel-heading">
-        <span>航班详情</span>
+        {returnLabel === undefined || onReturn === undefined ? (
+          <span>航班详情</span>
+        ) : (
+          <button className="context-back" type="button" onClick={onReturn}>
+            <ArrowLeft size={14} aria-hidden="true" />
+            {returnLabel}
+          </button>
+        )}
         <button className="icon-button" type="button" aria-label="关闭航班详情" onClick={onClose}>
           <X size={20} />
         </button>
