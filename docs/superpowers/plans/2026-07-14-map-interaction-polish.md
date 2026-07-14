@@ -161,7 +161,7 @@ git commit -m "fix: strengthen selected airport focus"
 - Consumes: `picker: 'origin' | 'destination' | null`
 - Produces: `.route-builder.picker-open` 状态和选择器自身有界滚动区域
 
-- [ ] **Step 1: 写失败的打开状态测试**
+- [x] **Step 1: 写失败的打开状态测试**
 
 在现有航线端点测试中加入：
 
@@ -176,13 +176,13 @@ expect(routeBuilder).not.toHaveClass('picker-open');
 
 同时读取 `globals.css`，断言 `.route-builder.picker-open` 使用 `overflow: visible`，选择列表仍使用 `overflow: auto`。
 
-- [ ] **Step 2: 运行测试并确认按预期失败**
+- [x] **Step 2: 运行测试并确认按预期失败**
 
 Run: `pnpm vitest run apps/web/src/components/app-shell.test.tsx`
 
 Expected: FAIL，航线面板没有 `picker-open` 类。
 
-- [ ] **Step 3: 实现面板打开状态和边界样式**
+- [x] **Step 3: 实现面板打开状态和边界样式**
 
 把航线面板改为：
 
@@ -210,7 +210,7 @@ Expected: FAIL，航线面板没有 `picker-open` 类。
 
 手机断点保留 `34dvh` 列表上限，并确保选择器仍位于端点卡片下方。
 
-- [ ] **Step 4: 运行聚焦测试**
+- [x] **Step 4: 运行聚焦测试**
 
 Run: `pnpm vitest run apps/web/src/components/app-shell.test.tsx`
 

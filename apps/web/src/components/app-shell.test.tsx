@@ -370,8 +370,14 @@ describe('AppShell', () => {
     render(<AppShell initialData={demoData} mapEnabled={false} />);
 
     await user.click(screen.getByRole('tab', { name: '航线' }));
+    const routeBuilder = screen.getByRole('region', { name: '航线探索' });
     await user.click(screen.getByRole('button', { name: /选择到达机场/ }));
+    expect(routeBuilder).toHaveClass('picker-open');
     expect(screen.getByRole('listbox', { name: '到达机场选项' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '关闭到达机场选择器' }));
+    expect(routeBuilder).not.toHaveClass('picker-open');
+    await user.click(screen.getByRole('button', { name: /选择到达机场/ }));
 
     await user.type(screen.getByRole('searchbox', { name: '搜索到达机场' }), 'PVG');
     await user.click(screen.getByRole('option', { name: /PVG 上海浦东国际机场/ }));

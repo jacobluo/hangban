@@ -1127,6 +1127,16 @@ select:focus-visible {
 .route-builder {
   width: 430px;
 }
+.route-builder.picker-open {
+  overflow: visible;
+}
+.route-builder.picker-open .airport-picker {
+  max-height: calc(100dvh - 280px);
+}
+.route-builder.picker-open .airport-option-list {
+  max-height: min(260px, calc(100dvh - 370px));
+  overflow: auto;
+}
 .endpoint-grid {
   display: grid;
   grid-template-columns: 1fr 36px 1fr;
@@ -2103,6 +2113,12 @@ select:focus-visible {
     right: 8px;
   }
   .route-builder .airport-option-list {
+    max-height: 34dvh;
+  }
+  .route-builder.picker-open .airport-picker {
+    max-height: calc(100dvh - 260px);
+  }
+  .route-builder.picker-open .airport-option-list {
     max-height: 34dvh;
   }
   .route-builder .endpoint strong {

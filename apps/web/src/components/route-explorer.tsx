@@ -66,7 +66,10 @@ export function RouteExplorer({
 
   return (
     <>
-      <section className="explorer-panel route-builder" aria-labelledby="route-explorer-title">
+      <section
+        className={`explorer-panel route-builder${picker === null ? '' : ' picker-open'}`}
+        aria-labelledby="route-explorer-title"
+      >
         <div className="explorer-title-row">
           <h1 id="route-explorer-title">航线探索</h1>
           <span>选择起点和终点</span>
