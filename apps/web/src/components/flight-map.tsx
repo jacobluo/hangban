@@ -338,18 +338,8 @@ export const FlightMap = forwardRef<FlightMapHandle, Props>(function FlightMap(
           source: 'airports',
           paint: {
             'circle-radius': ['case', ['==', ['get', 'selected'], 1], 9, 4],
-            'circle-color': [
-              'case',
-              ['==', ['get', 'selected'], 1],
-              '#ff6f3d',
-              '#ffffff',
-            ],
-            'circle-stroke-color': [
-              'case',
-              ['==', ['get', 'selected'], 1],
-              '#ffffff',
-              '#0f62fe',
-            ],
+            'circle-color': ['case', ['==', ['get', 'selected'], 1], '#ff6f3d', '#ffffff'],
+            'circle-stroke-color': ['case', ['==', ['get', 'selected'], 1], '#ffffff', '#0f62fe'],
             'circle-stroke-width': 2,
           },
         });
